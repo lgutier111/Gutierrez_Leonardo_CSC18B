@@ -1,0 +1,22 @@
+USER REGISTRATION
+
+
+FIRST NAME
+^[A-Z][a-zA-Z]{1,20}$
+
+
+LAST NAME
+^[A-Z][a-zA-Z-'\s]{1,20}$
+
+
+EMAIL
+^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$
+
+
+STUDENT ID
+^[a-z]{2}\d{7}$
+
+
+TODAYS DATE
+(0?[1-9]|1[012])/(0?[1-9]|[12][0-9]|3[01])/((19|20)\\d\\d)
+
