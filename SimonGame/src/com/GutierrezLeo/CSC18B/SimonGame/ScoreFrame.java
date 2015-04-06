@@ -112,7 +112,7 @@ public class ScoreFrame extends javax.swing.JFrame {
         // Header label
         simonHeaderLabel.setFont(new java.awt.Font("Gulim", 0, 36)); // NOI18N
         simonHeaderLabel.setForeground(Color.WHITE);
-        simonHeaderLabel.setText("S I M O N");
+        simonHeaderLabel.setText("S     I     M     O     N");
 
         // Declare the score label fields
         initScoreFields(score1Label);

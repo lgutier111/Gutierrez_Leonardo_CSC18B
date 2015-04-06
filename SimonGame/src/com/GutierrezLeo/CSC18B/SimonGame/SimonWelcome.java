@@ -24,7 +24,7 @@ public class SimonWelcome extends javax.swing.JFrame {
      */
     
 	// Declare the game panel class
-	private RegisterPanel registerPanel;
+	//private RegisterPanel registerPanel;
     private SimonGamePanel gamePanel;
     //private RegisterFrame r = new RegisterFrame();
     
@@ -73,7 +73,6 @@ public class SimonWelcome extends javax.swing.JFrame {
         // Play button details
         playButton.setFont(new java.awt.Font("Calibri", 0, 14)); // NOI18N
         playButton.setText("Play");
-        //playButton.setOpaque(true);
         playButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 playButtonActionPerformed(evt);
@@ -339,7 +338,7 @@ public class SimonWelcome extends javax.swing.JFrame {
     private javax.swing.JScrollPane simonDescriptionScollPane;
     private javax.swing.JTextArea simonDescriptionTextArea;
     private ArcsJPanel arcsJPanel;
-    private RegisterFrame r = new RegisterFrame();
+    //private RegisterFrame r = new RegisterFrame();
 
     // End of variables declaration                   
 }

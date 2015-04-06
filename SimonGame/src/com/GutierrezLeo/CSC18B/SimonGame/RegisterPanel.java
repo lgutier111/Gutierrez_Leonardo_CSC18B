@@ -14,18 +14,28 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+
 import java.awt.Label;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.NoSuchElementException;
 
 public class RegisterPanel extends JPanel {
 	
 	private JLabel firstNameLabel, lastNameLabel, emailLabel, studentIDLabel, dateLabel, headerLabel;
 	private JTextField firstNameTextField, lastNameTextField, emailTextField, studentIDTextField, dateTextField;
 	private SpringLayout currentLayout;
-	private JButton okButton;
+	private JButton saveButton;
 	private final Action action = new SwingAction();
-	private String firstName, lastName, email, studentID, todayDate;
+	private String firstName, lastName, email, studentID, birthDate;
 	private boolean inputVerification = false;
 	private Label thankYouLabel = new Label("Input Not Yet Validated");
+	private final Action action_1 = new SwingAction_1();
+	private RegisterFrame parent;
+	private static ObjectOutputStream output;   //outputs data to file
 	
 	public RegisterPanel() {
 		
@@ -37,7 +47,7 @@ public class RegisterPanel extends JPanel {
 		emailLabel.setForeground(Color.YELLOW);
 		studentIDLabel = new JLabel("Enter Student ID:");
 		studentIDLabel.setForeground(Color.YELLOW);
-		dateLabel = new JLabel("Enter Date (mm/dd/yyyy):");
+		dateLabel = new JLabel("Birthdate (mm/dd/yyyy):");
 		dateLabel.setForeground(Color.YELLOW);
 		headerLabel = new JLabel("PLAYER REGISTRATION");
 		headerLabel.setForeground(Color.RED);
@@ -49,17 +59,17 @@ public class RegisterPanel extends JPanel {
 		dateTextField = new JTextField();
 		
 		
-		
-		okButton = new JButton("OK");
-		okButton.setAction(action);
-		okButton.addActionListener(new ActionListener() {
+		saveButton = new JButton("SAVE");
+		saveButton.setBackground(Color.WHITE);
+		saveButton.setAction(action);
+		saveButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
 		
 		currentLayout = new SpringLayout();
-		currentLayout.putConstraint(SpringLayout.WEST, thankYouLabel, 6, SpringLayout.EAST, okButton);
-		currentLayout.putConstraint(SpringLayout.SOUTH, thankYouLabel, 0, SpringLayout.SOUTH, okButton);
+		currentLayout.putConstraint(SpringLayout.WEST, thankYouLabel, 6, SpringLayout.EAST, saveButton);
+		currentLayout.putConstraint(SpringLayout.SOUTH, thankYouLabel, 0, SpringLayout.SOUTH, saveButton);
 		currentLayout.putConstraint(SpringLayout.EAST, thankYouLabel, 31, SpringLayout.EAST, firstNameTextField);
 		currentLayout.putConstraint(SpringLayout.NORTH, dateTextField, -3, SpringLayout.NORTH, dateLabel);
 		currentLayout.putConstraint(SpringLayout.WEST, dateTextField, 0, SpringLayout.WEST, firstNameTextField);
@@ -76,8 +86,8 @@ public class RegisterPanel extends JPanel {
 		currentLayout.putConstraint(SpringLayout.NORTH, firstNameTextField, -3, SpringLayout.NORTH, firstNameLabel);
 		currentLayout.putConstraint(SpringLayout.WEST, firstNameTextField, 51, SpringLayout.EAST, firstNameLabel);
 		currentLayout.putConstraint(SpringLayout.EAST, firstNameTextField, 142, SpringLayout.EAST, firstNameLabel);
-		currentLayout.putConstraint(SpringLayout.SOUTH, okButton, -98, SpringLayout.SOUTH, this);
-		currentLayout.putConstraint(SpringLayout.EAST, okButton, 0, SpringLayout.EAST, firstNameLabel);
+		currentLayout.putConstraint(SpringLayout.SOUTH, saveButton, -98, SpringLayout.SOUTH, this);
+		currentLayout.putConstraint(SpringLayout.EAST, saveButton, 0, SpringLayout.EAST, firstNameLabel);
 		currentLayout.putConstraint(SpringLayout.NORTH, dateLabel, 28, SpringLayout.SOUTH, studentIDLabel);
 		currentLayout.putConstraint(SpringLayout.EAST, dateLabel, 0, SpringLayout.EAST, firstNameLabel);
 		currentLayout.putConstraint(SpringLayout.NORTH, studentIDLabel, 28, SpringLayout.SOUTH, emailLabel);
@@ -112,9 +122,20 @@ public class RegisterPanel extends JPanel {
 		this.add(studentIDTextField);
 		this.add(dateLabel);
 		this.add(dateTextField);
-		this.add(okButton);
+		this.add(saveButton);
 		
 		add(thankYouLabel);
+		
+		JButton btnDone = new JButton("DONE");
+		btnDone.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			}
+		});
+		currentLayout.putConstraint(SpringLayout.NORTH, btnDone, 22, SpringLayout.SOUTH, saveButton);
+		currentLayout.putConstraint(SpringLayout.WEST, btnDone, 0, SpringLayout.WEST, emailLabel);
+		btnDone.setBackground(Color.WHITE);
+		btnDone.setAction(action_1);
+		add(btnDone);
 		
 		//Put all the deatils for labels and text fields below:
 
@@ -122,22 +143,22 @@ public class RegisterPanel extends JPanel {
 
 	private class SwingAction extends AbstractAction {
 		public SwingAction() {
-			putValue(NAME, "OK");
+			putValue(NAME, "SAVE");
 			putValue(SHORT_DESCRIPTION, "Input Complete");
 		}
 		public void actionPerformed(ActionEvent e) {
 			//thankYouLabel = new Label("");
-			System.out.println("you have pressed the OK button");
+			System.out.println("you have pressed the save button");
 			firstName = firstNameTextField.getText();
 			lastName = lastNameTextField.getText();
 			email = emailTextField.getText();
 			studentID = studentIDTextField.getText();
-			todayDate = dateTextField.getText();
+			birthDate = dateTextField.getText();
 			System.out.println("FirstName entered: " + firstName);
 			System.out.println("LastName entered: " + lastName);
 			System.out.println("email entered: " + email);
 			System.out.println("Student ID entered: " + studentID);
-			System.out.println("Today's Date: " + todayDate);
+			System.out.println("Today's Date: " + birthDate);
 			verifyInput();
 			
 			if (inputVerification){
@@ -147,6 +168,8 @@ public class RegisterPanel extends JPanel {
 				studentIDTextField.setText("");
 				dateTextField.setText("");
 				thankYouLabel.setText("Thank You! User Registered");
+				
+				createSequentialFile();
 			}
 		}
 	}
@@ -170,12 +193,89 @@ public class RegisterPanel extends JPanel {
 			JOptionPane.showMessageDialog(this, "Bad student ID: " + studentID 
 					+ ". Please correct.");
 			studentIDTextField.setText("");
-		} else if (!ValidateInput.validateDate(todayDate)){
-			JOptionPane.showMessageDialog(this, "Invalide date: " + todayDate 
+		} else if (!ValidateInput.validateDate(birthDate)){
+			JOptionPane.showMessageDialog(this, "Invalide date: " + birthDate 
 					+ ". Please correct.");
 			dateTextField.setText("");
 		} else
 			inputVerification = true;
 			System.out.println("Valid input.  Thank you. Input Verification is: " + inputVerification);
+	}
+	private class SwingAction_1 extends AbstractAction {
+		public SwingAction_1() {
+			putValue(NAME, "DONE");
+			putValue(SHORT_DESCRIPTION, "Done with registration");
+		}
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("You have pressed the DONE button");
+			setVisible(false);
+			SettingsPanel settingsPanel = new SettingsPanel();
+			parent = new RegisterFrame();
+			parent.setTitle("SETTINGS");
+			//parent.add(settingsPanel);
+			settingsPanel.setVisible(true);
+			//parent.setVisible(false);
+			//parent.dispose();
+			////parent.ParentCloseMe();
+		}
+	}
+	
+	private void createSequentialFile(){
+		
+		openFile();
+		addRecord();
+		closeFile();
+		
+	}
+	
+	public static void openFile(){
+		try{
+			File file = new File("registered.ser");
+			
+			if(!file.exists()){
+				System.out.println("you are in createNewFile if stmt");
+				file.createNewFile();
+			}
+			
+			output = new ObjectOutputStream(
+					Files.newOutputStream(Paths.get("registered.ser")));
+		} catch (IOException ioException) {
+			System.err.println("Error opening file.  Terminating.");
+			System.exit(1);;  // terminate program
+		}
+	}
+	
+	public void addRecord(){
+	
+		try 
+		{
+		RegisteredUser registeredUser = new RegisteredUser(firstName, lastName, email, 
+				studentID, birthDate);
+		
+		output.writeObject(registeredUser);
+		} 
+		catch (NoSuchElementException elementException)
+		{ 
+			System.err.println("Invalid input. Please try again.");
+		} 
+		catch (IOException ioException)
+		{
+			System.err.println("Error writeing to file.  Terminating.");
+			//break;
+		}
+	}
+	
+	public void closeFile(){
+		
+		try
+		{
+			if (inputVerification)
+				output.close();
+		}
+		catch (IOException ioException)
+		{
+			System.err.println("Error closing file.  Terminating.");
+		}
+		
 	}
 }
