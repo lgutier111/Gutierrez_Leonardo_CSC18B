@@ -1,6 +1,11 @@
 package com.GutierrezLeo.CSC18B.SimonGame;
 
 import java.awt.Color;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.swing.JPanel;
 
@@ -13,14 +18,26 @@ import javax.swing.JPanel;
  */
 //public class SimonGamePanel extends javax.swing.JPanel {
 public class SimonGamePanel extends JPanel{
+	
+	private static Color color = new Color(0,0,0);
+	private ObjectInputStream input;
+	private int fileStatus;
+	private int difficulty;
+	private int sound;
+	private int R;
+	private int G;
+	private int B;
 
     /**
      * Creates new form SimonGamePanel
      */
     public SimonGamePanel() {
-        initComponents();
-        
         System.out.println("You are in the SimonGamePanel constructor");
+        
+    	readSequentialFile();
+    	color = new Color(R, G, B);
+
+        initComponents();
     }
 
     /**
@@ -50,8 +67,7 @@ public class SimonGamePanel extends JPanel{
         setPreferredSize(new java.awt.Dimension(600, 600));
 
         // Exit button details
-        //exitButton.setBackground(new java.awt.Color(0, 0, 0));
-        exitButton.setBackground(Color.BLACK);
+        exitButton.setBackground(color);
         exitButton.setForeground(Color.WHITE);
         exitButton.setText("Exit");
         exitButton.addActionListener(new java.awt.event.ActionListener() {
@@ -61,7 +77,7 @@ public class SimonGamePanel extends JPanel{
         });
 
         // Score Text Field details
-        scoreTextField.setBackground(new java.awt.Color(0, 0, 0));
+        scoreTextField.setBackground(color);
         scoreTextField.setEditable(false);
         scoreTextField.setForeground(new java.awt.Color(255, 255, 255));
         scoreTextField.setText("00");
@@ -72,13 +88,14 @@ public class SimonGamePanel extends JPanel{
         });
 
         // High Score Text Field
-        highScoreTextField.setBackground(new java.awt.Color(0, 0, 0));
+        highScoreTextField.setBackground(color);
         highScoreTextField.setEditable(false);
         highScoreTextField.setForeground(new java.awt.Color(255, 255, 255));
         highScoreTextField.setName(""); // NOI18N
         highScoreTextField.setText("00");
 
-        setBackground(Color.BLACK);
+        //setBackground(Color.BLACK);
+        setBackground(color);
         setForeground(Color.WHITE);
         scoreLabel.setText("Score");
         highScoreLabel.setText("High Score");
@@ -125,7 +142,7 @@ public class SimonGamePanel extends JPanel{
 
         // Simon label details
         simonLabel.setFont(new java.awt.Font("Gulim", 0, 36)); // NOI18N
-        simonLabel.setBackground(Color.BLACK);
+        simonLabel.setBackground(color);
         simonLabel.setForeground(Color.YELLOW);
         simonLabel.setText("S  I  M  O  N");
 
@@ -191,6 +208,78 @@ public class SimonGamePanel extends JPanel{
         );
     }// </editor-fold>                        
 
+    
+    public void readSequentialFile(){
+    	
+    	openFile();
+    	readRecord();
+    	closeFile();
+    	
+    }
+    
+    public void openFile(){
+    	
+    	try
+    	{
+    		input = new ObjectInputStream(Files.newInputStream(Paths.get("simonsettings.ser")));
+    	} 
+    	catch (IOException ioException)
+    	{
+    		System.err.println("Error opening file.");
+    		System.exit(1);
+    	}
+    }
+    
+    public void readRecord(){
+    	
+    	try
+    	{
+    		while (true)
+    		{
+    			GameSettings setting = (GameSettings) input.readObject();
+    			fileStatus = setting.getFileStatus();
+    			difficulty = setting.getDifficulty(); 
+    			sound = setting.getSound();
+    			R = setting.getR();
+    			G = setting.getG();
+    			B = setting.getB();
+    			
+    			System.out.println("Settings in file are fileStatus: " + fileStatus +
+    					"difficulty: " + difficulty +
+    					"sound: " + sound +
+    					"R setting: " + R +
+    					"G setting: " + G +
+    					"B setting: " + B);
+    		}
+    	}
+    	catch (EOFException endOfFileException)
+    	{
+    		System.err.println("No More Records");
+    	}
+    	catch (ClassNotFoundException classNotFoundException)
+    	{
+    		System.err.println("Invalid object type.  Terminating. ");
+    	}
+    	catch (IOException ioException)
+    	{
+    		System.err.println("Error reading from file.  Terminating.");
+    	}
+    }
+    
+    public void closeFile(){
+    	
+    	try
+    	{
+    		if (input != null)
+    			input.close();
+    	}
+    	catch (IOException ioException)
+    	{
+    		System.err.println("Error closing file.  Terminating.");
+    		System.exit(1);
+    	}
+    }
+    
     // Score text field actions
     private void scoreTextFieldActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
@@ -225,7 +314,6 @@ public class SimonGamePanel extends JPanel{
         // TODO add your handling code here:
         System.exit(0);
     }                                          
-
 
     // Variables declaration - do not modify                     
     private javax.swing.JButton blueButton;

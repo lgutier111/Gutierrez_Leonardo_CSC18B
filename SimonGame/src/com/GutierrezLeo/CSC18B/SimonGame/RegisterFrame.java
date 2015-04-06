@@ -18,6 +18,8 @@ public class RegisterFrame extends JFrame {
 	
 	private void setUpFrame(){
 		
+		
+		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		//setContentPane(registerPanel);
 		getContentPane().add(registerPanel);
 		setTitle("REGISTRATION");

@@ -12,15 +12,16 @@ import javax.swing.JPanel;
 * 			Dr Mark Lehr
 * 			Riverside City College
 */
-public class ArcsJPanel extends JPanel 
-{
+public class ArcsJPanel extends JPanel{
+	
+	//SimonWelcome simonWelcome = new SimonWelcome();
    // draw rectangles and arcs
    @Override
-   public void paintComponent(Graphics g)
-   {
+   public void paintComponent(Graphics g){
+	   
       super.paintComponent(g);  
+      //this.setBackground(Color.BLACK);
       
-      this.setBackground(Color.BLACK);
       
       // start at 270 and sweep -90 degrees
       //       (  x,   y, width, height, startAngle, arcAngle)

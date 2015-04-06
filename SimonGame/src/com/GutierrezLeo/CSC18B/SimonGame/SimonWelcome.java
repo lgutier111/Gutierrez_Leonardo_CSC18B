@@ -1,12 +1,12 @@
 package com.GutierrezLeo.CSC18B.SimonGame;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 import java.awt.Color;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 
@@ -24,19 +24,46 @@ public class SimonWelcome extends javax.swing.JFrame {
      */
     
 	// Declare the game panel class
-	//private RegisterPanel registerPanel;
+	protected static Color color = new Color(0,0,0);
+	private ObjectInputStream input;
+	private int fileStatus;
+	private int difficulty;
+	private int sound;
+	private int R;
+	private int G;
+	private int B;
     private SimonGamePanel gamePanel;
     //private RegisterFrame r = new RegisterFrame();
     
     // Constructor to the splash screen
     public SimonWelcome() {
     	
+    	System.out.println("You are in the SimonWelcome constructor");
+    	
+       try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(SimonWelcome.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(SimonWelcome.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(SimonWelcome.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(SimonWelcome.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        
+    	readSequentialFile();
+    	color = new Color(R, G, B);
+    	
         initComponents();
-        getContentPane().setBackground(Color.BLACK); 
-        System.out.println("You are in the SimonWelcome constructor");
+        getContentPane().setBackground(color);
         colorfulSimon();
         placeArcPanel();
-        
     }
 
     /**
@@ -90,11 +117,10 @@ public class SimonWelcome extends javax.swing.JFrame {
         });
 
         // Scroll pane details
-        //simonDescriptionScollPane.setBackground(new java.awt.Color(0, 0, 0));
         simonDescriptionScollPane.setFont(new java.awt.Font("Calibri", 0, 11)); // NOI18N
 
         simonDescriptionTextArea.setEditable(false);
-        simonDescriptionTextArea.setBackground(Color.BLACK);
+        simonDescriptionTextArea.setBackground(color);
         simonDescriptionTextArea.setForeground(Color.YELLOW);
         simonDescriptionTextArea.setColumns(20);
         simonDescriptionTextArea.setFont(new java.awt.Font("Calibri", 0, 14)); // NOI18N
@@ -207,14 +233,11 @@ public class SimonWelcome extends javax.swing.JFrame {
     private void placeArcPanel(){
     	
     	arcsJPanel = new ArcsJPanel();
-        getContentPane().add(arcsJPanel);
-        //add(gamePanel);
-        arcsJPanel.setBackground(Color.BLACK);
+        arcsJPanel.setBackground(color);
         arcsJPanel.setSize(260, 170);
         arcsJPanel.setLocation(80, 227);
-        //pack();
         arcsJPanel.setVisible(true);
-    	
+        getContentPane().add(arcsJPanel);
     }
     
     // The colorful SIMON labels
@@ -264,6 +287,78 @@ public class SimonWelcome extends javax.swing.JFrame {
     	*/
     }
     
+    public void readSequentialFile(){
+    	
+    	openFile();
+    	readRecord();
+    	closeFile();
+    	
+    }
+    
+    public void openFile(){
+    	
+    	try
+    	{
+    		input = new ObjectInputStream(Files.newInputStream(Paths.get("simonsettings.ser")));
+    	} 
+    	catch (IOException ioException)
+    	{
+    		System.err.println("Error opening file.");
+    		System.exit(1);
+    	}
+    }
+    
+    public void readRecord(){
+    	
+    	try
+    	{
+    		while (true)
+    		{
+    			GameSettings setting = (GameSettings) input.readObject();
+    			fileStatus = setting.getFileStatus();
+    			difficulty = setting.getDifficulty(); 
+    			sound = setting.getSound();
+    			R = setting.getR();
+    			G = setting.getG();
+    			B = setting.getB();
+    			
+    			System.out.println("Settings in file are fileStatus: " + fileStatus +
+    					"difficulty: " + difficulty +
+    					"sound: " + sound +
+    					"R setting: " + R +
+    					"G setting: " + G +
+    					"B setting: " + B);
+    		}
+    	}
+    	catch (EOFException endOfFileException)
+    	{
+    		System.err.println("No More Records");
+    	}
+    	catch (ClassNotFoundException classNotFoundException)
+    	{
+    		System.err.println("Invalid object type.  Terminating. ");
+    	}
+    	catch (IOException ioException)
+    	{
+    		System.err.println("Error reading from file.  Terminating.");
+    	}
+    }
+    
+    public void closeFile(){
+    	
+    	try
+    	{
+    		if (input != null)
+    			input.close();
+    	}
+    	catch (IOException ioException)
+    	{
+    		System.err.println("Error closing file.  Terminating.");
+    		System.exit(1);
+    	}
+    }
+    
+    
     // Play Button action defined
     private void playButtonActionPerformed(java.awt.event.ActionEvent evt) {
         System.out.println("You have pressed the play button in SimonWelcome");
@@ -279,8 +374,7 @@ public class SimonWelcome extends javax.swing.JFrame {
         remove(arcsJPanel);
         gamePanel = new SimonGamePanel();
         getContentPane().add(gamePanel);
-        //add(gamePanel);
-        gamePanel.setBackground(Color.BLACK);
+        gamePanel.setBackground(color);
         gamePanel.setSize(600, 600);
         pack();
         gamePanel.setVisible(true);
@@ -292,41 +386,7 @@ public class SimonWelcome extends javax.swing.JFrame {
         System.exit(0); 
     }                                          
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(SimonWelcome.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(SimonWelcome.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(SimonWelcome.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(SimonWelcome.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new SimonWelcome().setVisible(true);
-            }
-        });
-    }
-
+    
     // Variables declaration - do not modify                     
     private javax.swing.JButton exitButton;
     private javax.swing.JLabel sLabel;
@@ -338,7 +398,6 @@ public class SimonWelcome extends javax.swing.JFrame {
     private javax.swing.JScrollPane simonDescriptionScollPane;
     private javax.swing.JTextArea simonDescriptionTextArea;
     private ArcsJPanel arcsJPanel;
-    //private RegisterFrame r = new RegisterFrame();
 
     // End of variables declaration                   
 }

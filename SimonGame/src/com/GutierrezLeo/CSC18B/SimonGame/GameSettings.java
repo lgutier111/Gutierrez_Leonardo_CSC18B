@@ -4,18 +4,32 @@ import java.io.Serializable;
 
 public class GameSettings implements Serializable{
 
+	private int fileStatus;
 	private int difficulty;
-	private boolean sound;
-	private int backgroundColor;
+	private int sound;
+	private int R;
+	private int G;
+	private int B;
 	
 	public GameSettings(){
-		this(0, false, 0);
+		this(0, 0, 0, 0, 0, 0);
 	}
 	
-	public GameSettings(int difficulty, boolean sound, int backgroundColor){
+	public GameSettings(int fileStatus, int difficulty, int sound, int R, int G, int B){
+		this.fileStatus = fileStatus;
 		this.difficulty = difficulty;
 		this.sound = sound;
-		this.backgroundColor = backgroundColor;
+		this.R = R;
+		this.G = G;
+		this.B = B;
+	}
+	
+	public void setFileStatus(int fileStatus){
+		this.fileStatus = fileStatus;
+	}
+	
+	public int getFileStatus(){
+		return fileStatus;
 	}
 	
 	public void setDifficulty(int difficulty){
@@ -26,19 +40,35 @@ public class GameSettings implements Serializable{
 		return difficulty;
 	}
 	
-	public void setSound(boolean sound){
+	public void setSound(int sound){
 		this.sound = sound;
 	}
 	
-	public boolean getSound(){
+	public int getSound(){
 		return sound;
 	}
 	
-	public void setBackgroundColor(int backgroundColor){
-		this.backgroundColor = backgroundColor;
+	public void setR(int R){
+		this.R = R;
 	}
 	
-	public int getBackgroundColor(){
-		return backgroundColor;
+	public int getR(){
+		return R;
+	}
+	
+	public void setG(int G){
+		this.G = G;
+	}
+	
+	public int getG(){
+		return G;
+	}
+	
+	public void setB(int B){
+		this.B = B;
+	}
+	
+	public int getB(){
+		return B;
 	}
 }
