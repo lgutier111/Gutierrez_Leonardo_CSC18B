@@ -110,7 +110,7 @@ public class SettingsPanel extends JPanel {
 		springLayout.putConstraint(SpringLayout.EAST, rdbtnEasy, -109, SpringLayout.EAST, this);
 		springLayout.putConstraint(SpringLayout.EAST, lblDifficulty, -21, SpringLayout.WEST, rdbtnEasy);
 		springLayout.putConstraint(SpringLayout.NORTH, rdbtnEasy, 0, SpringLayout.NORTH, lblDifficulty);
-		rdbtnEasy.setBackground(Color.BLACK);
+		rdbtnEasy.setBackground(color);
 		rdbtnEasy.setForeground(Color.WHITE);
 		add(rdbtnEasy);
 		
@@ -119,7 +119,7 @@ public class SettingsPanel extends JPanel {
 		rdbtnMedium.setAction(action_6);
 		springLayout.putConstraint(SpringLayout.NORTH, rdbtnMedium, 6, SpringLayout.SOUTH, rdbtnEasy);
 		springLayout.putConstraint(SpringLayout.WEST, rdbtnMedium, 0, SpringLayout.WEST, rdbtnEasy);
-		rdbtnMedium.setBackground(Color.BLACK);
+		rdbtnMedium.setBackground(color);
 		rdbtnMedium.setForeground(Color.WHITE);
 		add(rdbtnMedium);
 		
@@ -129,7 +129,7 @@ public class SettingsPanel extends JPanel {
 		springLayout.putConstraint(SpringLayout.NORTH, rdbtnHard, 6, SpringLayout.SOUTH, rdbtnMedium);
 		springLayout.putConstraint(SpringLayout.WEST, rdbtnHard, 0, SpringLayout.WEST, rdbtnEasy);
 		springLayout.putConstraint(SpringLayout.EAST, rdbtnHard, -109, SpringLayout.EAST, this);
-		rdbtnHard.setBackground(Color.BLACK);
+		rdbtnHard.setBackground(color);
 		rdbtnHard.setForeground(Color.WHITE);
 		add(rdbtnHard);
 		
@@ -187,7 +187,7 @@ public class SettingsPanel extends JPanel {
 		//JRadioButton rdbtnOff = new JRadioButton("Off");
 		rdbtnOff.setAction(action_4);
 		rdbtnOff.setRolloverEnabled(false);
-		rdbtnOff.setBackground(Color.BLACK);
+		rdbtnOff.setBackground(color);
 		rdbtnOff.setForeground(Color.WHITE);
 		springLayout.putConstraint(SpringLayout.NORTH, rdbtnOff, 1, SpringLayout.NORTH, lblSound);
 		add(rdbtnOff);
@@ -197,7 +197,7 @@ public class SettingsPanel extends JPanel {
 		rdbtnOn.setSelected(true);
 		rdbtnOn.setRolloverEnabled(false);
 		rdbtnOn.setForeground(Color.WHITE);
-		rdbtnOn.setBackground(Color.BLACK);
+		rdbtnOn.setBackground(color);
 		springLayout.putConstraint(SpringLayout.EAST, rdbtnOff, -13, SpringLayout.WEST, rdbtnOn);
 		springLayout.putConstraint(SpringLayout.NORTH, rdbtnOn, 1, SpringLayout.NORTH, lblSound);
 		springLayout.putConstraint(SpringLayout.EAST, rdbtnOn, 0, SpringLayout.EAST, btnColorSwatch);

@@ -1,6 +1,8 @@
 package com.GutierrezLeo.CSC18B.SimonGame;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -17,10 +19,13 @@ import javax.swing.Action;
 
 import java.awt.Label;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Formatter;
+import java.util.FormatterClosedException;
 import java.util.NoSuchElementException;
 
 public class RegisterPanel extends JPanel {
@@ -33,9 +38,9 @@ public class RegisterPanel extends JPanel {
 	private String firstName, lastName, email, studentID, birthDate;
 	private boolean inputVerification = false;
 	private Label thankYouLabel = new Label("Input Not Yet Validated");
-	private final Action action_1 = new SwingAction_1();
+	private final Action done = new SwingAction_1();
 	private RegisterFrame parent;
-	private static ObjectOutputStream output;   //outputs data to file
+	private static Formatter output;   //outputs data to file
 	
 	public RegisterPanel() {
 		
@@ -134,7 +139,7 @@ public class RegisterPanel extends JPanel {
 		currentLayout.putConstraint(SpringLayout.NORTH, btnDone, 22, SpringLayout.SOUTH, saveButton);
 		currentLayout.putConstraint(SpringLayout.WEST, btnDone, 0, SpringLayout.WEST, emailLabel);
 		btnDone.setBackground(Color.WHITE);
-		btnDone.setAction(action_1);
+		btnDone.setAction(done);
 		add(btnDone);
 		
 		//Put all the deatils for labels and text fields below:
@@ -169,7 +174,7 @@ public class RegisterPanel extends JPanel {
 				dateTextField.setText("");
 				thankYouLabel.setText("Thank You! User Registered");
 				
-				createSequentialFile();
+				createTextFile();
 			}
 		}
 	}
@@ -220,26 +225,53 @@ public class RegisterPanel extends JPanel {
 		}
 	}
 	
-	private void createSequentialFile(){
+	private void createTextFile(){
 		
-		openFile();
-		addRecord();
-		closeFile();
+		JFrame parentFrame = new JFrame();
+		JFileChooser jfc = new JFileChooser();
+		jfc.setDialogTitle("Save .txt Registration File");
+		int userSelection = jfc.showSaveDialog(parentFrame);
+		
+		if(userSelection == JFileChooser.APPROVE_OPTION){
+			File saveLocation = jfc.getSelectedFile();
+			try
+			{
+				output = new Formatter(jfc.getSelectedFile() + ".txt");
+				output.format("%s %s %s %s %s%n", firstName, lastName, email, studentID, birthDate);
+				if (output != null)
+					output.close();
+			}
+			catch (FileNotFoundException fnfe)
+			{
+				System.err.println("File not found.");
+				fnfe.printStackTrace();
+			}
+			catch (FormatterClosedException fce)
+			{
+				System.err.println("Error writing to file.  Terminating.");
+				fce.printStackTrace();
+			}
+			catch (NoSuchElementException elementException)
+			{
+				System.err.println("Invalid input.");
+				elementException.printStackTrace();
+			}
+		}
+		
+		//openFile();
+		//addRecord();
+		//closeFile();
 		
 	}
-	
+	/*
 	public static void openFile(){
-		try{
-			File file = new File("registered.ser");
+		try
+		{
+			output = new Formatter("registered.txt");
 			
-			if(!file.exists()){
-				System.out.println("you are in createNewFile if stmt");
-				file.createNewFile();
-			}
-			
-			output = new ObjectOutputStream(
-					Files.newOutputStream(Paths.get("registered.ser")));
-		} catch (IOException ioException) {
+		} 
+		catch (IOException ioException) 
+		{
 			System.err.println("Error opening file.  Terminating.");
 			System.exit(1);;  // terminate program
 		}
@@ -249,33 +281,28 @@ public class RegisterPanel extends JPanel {
 	
 		try 
 		{
-		RegisteredUser registeredUser = new RegisteredUser(firstName, lastName, email, 
-				studentID, birthDate);
+			
+		output.format("%s %s %s %s %s%n", firstName, lastName, email, studentID, birthDate);
 		
-		output.writeObject(registeredUser);
 		} 
-		catch (NoSuchElementException elementException)
+		catch (FormatterClosedException formaterClosedException)
 		{ 
-			System.err.println("Invalid input. Please try again.");
+			System.err.println("Error writing to file.  Terminating.");
+			//break;
 		} 
-		catch (IOException ioException)
+		catch (NoSuchElementException elemntException)
 		{
-			System.err.println("Error writeing to file.  Terminating.");
+			System.err.println("Invalid input.");
 			//break;
 		}
 	}
 	
 	public void closeFile(){
-		
-		try
-		{
-			if (inputVerification)
-				output.close();
-		}
-		catch (IOException ioException)
-		{
-			System.err.println("Error closing file.  Terminating.");
-		}
+
+		if (output != null)
+			output.close();
 		
 	}
+	*/
 }
+
