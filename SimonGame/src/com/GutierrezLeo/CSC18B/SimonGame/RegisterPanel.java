@@ -54,7 +54,7 @@ public class RegisterPanel extends JPanel {
 		studentIDLabel.setForeground(Color.YELLOW);
 		dateLabel = new JLabel("Birthdate (mm/dd/yyyy):");
 		dateLabel.setForeground(Color.YELLOW);
-		headerLabel = new JLabel("PLAYER REGISTRATION");
+		headerLabel = new JLabel("S I M O N   PLAYER REGISTRATION");
 		headerLabel.setForeground(Color.RED);
 
 		firstNameTextField = new JTextField();
@@ -73,6 +73,8 @@ public class RegisterPanel extends JPanel {
 		});
 		
 		currentLayout = new SpringLayout();
+		currentLayout.putConstraint(SpringLayout.WEST, headerLabel, 89, SpringLayout.WEST, this);
+		currentLayout.putConstraint(SpringLayout.EAST, headerLabel, 300, SpringLayout.WEST, this);
 		currentLayout.putConstraint(SpringLayout.WEST, thankYouLabel, 6, SpringLayout.EAST, saveButton);
 		currentLayout.putConstraint(SpringLayout.SOUTH, thankYouLabel, 0, SpringLayout.SOUTH, saveButton);
 		currentLayout.putConstraint(SpringLayout.EAST, thankYouLabel, 31, SpringLayout.EAST, firstNameTextField);
@@ -104,7 +106,6 @@ public class RegisterPanel extends JPanel {
 		currentLayout.putConstraint(SpringLayout.SOUTH, firstNameLabel, -411, SpringLayout.SOUTH, this);
 		currentLayout.putConstraint(SpringLayout.WEST, firstNameLabel, 74, SpringLayout.WEST, this);
 		currentLayout.putConstraint(SpringLayout.NORTH, headerLabel, 26, SpringLayout.NORTH, this);
-		currentLayout.putConstraint(SpringLayout.WEST, headerLabel, 137, SpringLayout.WEST, this);
 		
 		
 		setUpRegPanel();
@@ -258,51 +259,8 @@ public class RegisterPanel extends JPanel {
 			}
 		}
 		
-		//openFile();
-		//addRecord();
-		//closeFile();
+		inputVerification = false;
 		
 	}
-	/*
-	public static void openFile(){
-		try
-		{
-			output = new Formatter("registered.txt");
-			
-		} 
-		catch (IOException ioException) 
-		{
-			System.err.println("Error opening file.  Terminating.");
-			System.exit(1);;  // terminate program
-		}
-	}
-	
-	public void addRecord(){
-	
-		try 
-		{
-			
-		output.format("%s %s %s %s %s%n", firstName, lastName, email, studentID, birthDate);
-		
-		} 
-		catch (FormatterClosedException formaterClosedException)
-		{ 
-			System.err.println("Error writing to file.  Terminating.");
-			//break;
-		} 
-		catch (NoSuchElementException elemntException)
-		{
-			System.err.println("Invalid input.");
-			//break;
-		}
-	}
-	
-	public void closeFile(){
-
-		if (output != null)
-			output.close();
-		
-	}
-	*/
 }
 

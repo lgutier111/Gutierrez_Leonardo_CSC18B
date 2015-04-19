@@ -1,0 +1,36 @@
+Sounds
+
+Blue	-	E-note
+Yellow	-	C# note
+Red	-	A-note
+Green	-	E-note (one octave lower than blue)
+
+
+OBJECT:
+To repeat correctly a longer and longer sequence of signals.
+FOR ONE PLAYER:
+1. Slide red ON/OFF switch to "ON".
+2. Slide blue GAME SELECTOR switch to "I".
+3. Slide blue SKILL LEVEL switch to 1, 2, 3 or 4.
+4. Press red START button; SIMON will give the first signal.
+5. Repeat the signal by pressing the same lens.
+6. SIMON will duplicate the first signal and will add one.
+7. Repeat these two signals by pressing the same lenses.
+8. SIMON will duplicate these first two signals and add one.
+9. Continue in this manner as long as you can repeat each sequence
+of signals correctly.
+10. Notice that after the 5th, 9th and 13th signals in a sequence, SIMON automatically increases the tempo.
+11. If you fail to repeat a sequence exactly or if you take more than 5 seconds to repeat a signal, SIMON responds with a
+"RAZZ" sound; you have lost, and this sequence of signals is over.
+TO WIN:
+Repeat the number of sequences for skill levels 1, 2, or 3 and SIMON will salute you with six short signals from the last lens you
+played. For the tough skill level 4, repeat the 31 signal sequence and SIMON blows its mind, loses its memory and gives itself the
+RAZZ sound.
+Congratulations, you have beaten SIMON!
+
+Skill level 1	-	8 sequences
+Skill level 2	-	14 sequences
+Skill level 3	-	20 sequences
+Skill level 4	-	31 sequences
+
+

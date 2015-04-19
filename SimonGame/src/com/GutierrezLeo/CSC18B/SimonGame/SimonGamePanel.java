@@ -2,16 +2,24 @@ package com.GutierrezLeo.CSC18B.SimonGame;
 
 import java.awt.Color;
 import java.io.EOFException;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import javax.print.DocFlavor.URL;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 /**
  *
- * @author Leo
+ * @author Leo Gutierrez
  * 			CIC18B	-	Java Advanced Object
  * 			Dr Mark Lehr
  * 			Riverside City College
@@ -27,6 +35,32 @@ public class SimonGamePanel extends JPanel{
 	private int R;
 	private int G;
 	private int B;
+	
+	private int gameScore = 0;
+	private boolean successfulTry = true;
+	
+	private File loseFile = new File("loseGame.wav");
+	private File redFile = new File("redSound.wav");
+	private File greenFile = new File("greenSound.wav");
+	private File yellowFile = new File("yellowSound.wav");
+	private File blueFile = new File("blueSound.wav");
+	
+	private ImageIcon blueOff = new ImageIcon(getClass().getResource("blue_arch_OFF.fw.png"));
+	private ImageIcon blueOn = new ImageIcon(getClass().getResource("blue_arch_ON.fw.png"));
+	private ImageIcon blueRollover = new ImageIcon(getClass().getResource("blue_arch_ON.fw.png"));
+
+	private ImageIcon redOff = new ImageIcon(getClass().getResource("red_arch_OFF.fw.png"));
+	private ImageIcon redOn = new ImageIcon(getClass().getResource("red_arch_ON.fw.png"));
+	private ImageIcon redRollover = new ImageIcon(getClass().getResource("red_arch_ON.fw.png"));
+	
+	private ImageIcon greenOff = new ImageIcon(getClass().getResource("green_arch_OFF.fw.png"));
+	private ImageIcon greenOn = new ImageIcon(getClass().getResource("green_arch_ON.fw.png"));
+	private ImageIcon greenRollover = new ImageIcon(getClass().getResource("green_arch_ON.fw.png"));
+
+	private ImageIcon yellowOff = new ImageIcon(getClass().getResource("yellow_arch_OFF.fw.png"));
+	private ImageIcon yellowOn = new ImageIcon(getClass().getResource("yellow_arch_ON.fw.png"));
+	private ImageIcon yellowRollover = new ImageIcon(getClass().getResource("yellow_arch_ON.fw.png"));
+
 
     /**
      * Creates new form SimonGamePanel
@@ -101,9 +135,9 @@ public class SimonGamePanel extends JPanel{
         highScoreLabel.setText("High Score");
 
         // Green button details
-        greenButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("green_arch_OFF.fw.png"))); // NOI18N
-        greenButton.setBackground(Color.BLACK);
-        greenButton.setText("Green");
+        greenButton.setIcon(greenOff);
+        greenButton.setBackground(color);
+        greenButton.setRolloverIcon(greenRollover);
         greenButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 greenButtonActionPerformed(evt);
@@ -111,9 +145,9 @@ public class SimonGamePanel extends JPanel{
         });
 
         // Red button details
-        redButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("red_arch_OFF.fw.png"))); // NOI18N
-        redButton.setBackground(Color.BLACK);
-        redButton.setText("Red");
+        redButton.setIcon(redOff);
+        redButton.setBackground(color);
+        redButton.setRolloverIcon(redRollover);
         redButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 redButtonActionPerformed(evt);
@@ -121,9 +155,9 @@ public class SimonGamePanel extends JPanel{
         });
 
         // Blue button details
-        blueButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("blue_arch_OFF.fw.png"))); // NOI18N
-        blueButton.setBackground(Color.BLACK);
-        blueButton.setText("Blue");
+        blueButton.setIcon(blueOff);
+        blueButton.setBackground(color);
+        blueButton.setRolloverIcon(blueRollover);
         blueButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 blueButtonActionPerformed(evt);
@@ -131,9 +165,9 @@ public class SimonGamePanel extends JPanel{
         });
 
         // Yellow button details
-        yellowButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("yellow_arch_OFF.fw.png"))); // NOI18N
-        yellowButton.setBackground(Color.BLACK);
-        yellowButton.setText("Yellow");
+        yellowButton.setIcon(yellowOff);
+        yellowButton.setBackground(color);
+        yellowButton.setRolloverIcon(yellowRollover);
         yellowButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 yellowButtonActionPerformed(evt);
@@ -141,7 +175,7 @@ public class SimonGamePanel extends JPanel{
         });
 
         // Simon label details
-        simonLabel.setFont(new java.awt.Font("Gulim", 0, 36)); // NOI18N
+        simonLabel.setFont(new java.awt.Font("Gulim", 0, 36));
         simonLabel.setBackground(color);
         simonLabel.setForeground(Color.YELLOW);
         simonLabel.setText("S  I  M  O  N");
@@ -279,39 +313,147 @@ public class SimonGamePanel extends JPanel{
     		System.exit(1);
     	}
     }
-    
+   
     // Score text field actions
     private void scoreTextFieldActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
+    	//if(successfulTry){
+    	//	gameScore += 1;
+    	//	highScoreTextField.setText(Integer.toString(gameScore));
+    	//	
+    	//}
+    		
+    	if (greenButton.PRESSED_ICON_CHANGED_PROPERTY != null){
+    		gameScore += 1;
+    		highScoreTextField.setText(Integer.toString(gameScore));
+    	}
+    	
     }                                              
 
     // Green button actions
     private void greenButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
         System.out.println("You have pressed the green button");
+        greenButton.setPressedIcon(greenOn);
+        
+        try
+    	{
+    		AudioInputStream greenGameIn = AudioSystem.getAudioInputStream(greenFile);
+    		Clip greenClip = AudioSystem.getClip();
+    		greenClip.open(greenGameIn);
+    		greenClip.start();
+     	}
+    	catch (UnsupportedAudioFileException e)
+    	{
+    		System.out.println("Unsupported Audio File.");
+    		e.printStackTrace();
+    	}
+    	catch (IOException e)
+    	{
+    		System.out.println("IO Exception opening audio clips");
+    		e.printStackTrace();
+    	}
+    	catch (LineUnavailableException e)
+    	{
+    		System.out.println("Line unavailable.");
+    		e.printStackTrace();
+    	}
+        
+        gameScore += 1;
+        highScoreTextField.setText(Integer.toString(gameScore));
+        
     }                                           
 
     // Red button actions
     private void redButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
         System.out.println("You have pressed the red button");
+         redButton.setPressedIcon(redOn);
+         
+         try
+     	{
+        	//URL redGameSound = this.getClass().getClassLoader().getResource("redSound.wav");	
+     		AudioInputStream redGameIn = AudioSystem.getAudioInputStream(redFile);
+     		Clip redClip = AudioSystem.getClip();
+     		redClip.open(redGameIn);
+     		redClip.start();
+      	}
+     	catch (UnsupportedAudioFileException e)
+     	{
+     		System.out.println("Unsupported Audio File.");
+     		e.printStackTrace();
+     	}
+     	catch (IOException e)
+     	{
+     		System.out.println("IO Exception opening audio clips");
+     		e.printStackTrace();
+     	}
+     	catch (LineUnavailableException e)
+     	{
+     		System.out.println("Line unavailable.");
+     		e.printStackTrace();
+     	}
+
     }                                         
 
     // Yellow button actions
     private void yellowButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
         System.out.println("You have pressed the yellow button");
+        yellowButton.setPressedIcon(yellowOn);
+
+        try
+    	{
+    		AudioInputStream yellowGameIn = AudioSystem.getAudioInputStream(yellowFile);
+    		Clip yellowClip = AudioSystem.getClip();
+    		yellowClip.open(yellowGameIn);
+    		yellowClip.start();
+     	}
+    	catch (UnsupportedAudioFileException e)
+    	{
+    		System.out.println("Unsupported Audio File.");
+    		e.printStackTrace();
+    	}
+    	catch (IOException e)
+    	{
+    		System.out.println("IO Exception opening audio clips");
+    		e.printStackTrace();
+    	}
+    	catch (LineUnavailableException e)
+    	{
+    		System.out.println("Line unavailable.");
+    		e.printStackTrace();
+    	}
+
     }                                            
 
     // Blue button actions
     private void blueButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
         System.out.println("You have pressed the blue button");
+        blueButton.setPressedIcon(blueOn);
+        
+        try
+    	{
+    		AudioInputStream blueGameIn = AudioSystem.getAudioInputStream(blueFile);
+    		Clip blueClip = AudioSystem.getClip();
+    		blueClip.open(blueGameIn);
+    		blueClip.start();
+     	}
+    	catch (UnsupportedAudioFileException e)
+    	{
+    		System.out.println("Unsupported Audio File.");
+    		e.printStackTrace();
+    	}
+    	catch (IOException e)
+    	{
+    		System.out.println("IO Exception opening audio clips");
+    		e.printStackTrace();
+    	}
+    	catch (LineUnavailableException e)
+    	{
+    		System.out.println("Line unavailable.");
+    		e.printStackTrace();
+    	}
     }                                          
 
     // Exit button actions
     private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
         System.exit(0);
     }                                          
 
