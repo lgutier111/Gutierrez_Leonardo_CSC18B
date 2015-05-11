@@ -1,12 +1,8 @@
-CREATE DATABASE  IF NOT EXISTS `SimonGameDBase` /*!40100 DEFAULT CHARACTER SET latin1 */;
+CREATE DATABASE  IF NOT EXISTS `SimonGameDBase`;
 
 USE `SimonGameDBase`;
 
 DROP TABLE IF EXISTS `enity_user`;
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-
-/*!40101 SET character_set_client = utf8 */;
 
 CREATE TABLE `entity_user`(`user_id` INTEGER NOT NULL PRIMARY KEY,`first_name` VARCHAR(25) NOT NULL,`last_name` VARCHAR(25) NOT NULL,`email` VARCHAR(60),`birth_date` DATE,`status` TINYINT);
 
@@ -14,29 +10,17 @@ CREATE TABLE `entity_user`(`user_id` INTEGER NOT NULL PRIMARY KEY,`first_name` V
 
 DROP TABLE IF EXISTS `enity_history`;
 
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-
-/*!40101 SET character_set_client = utf8 */;
-
 CREATE TABLE `entity_history`(`game_id` INTEGER NOT NULL PRIMARY KEY,`game_date` TIMESTAMP(0) NOT NULL,`game_level` TINYINT NOT NULL,`game_score` TINYINT NOT NULL,`game_user` INTEGER NOT NULL);
 
 
 
 DROP TABLE IF EXISTS `xfer_user_history`;
 
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-
-/*!40101 SET character_set_client = utf8 */;
-
 CREATE TABLE `xref_user_history`(`user_history_xref` INTEGER NOT NULL PRIMARY KEY,`user_id` INTEGER NOT NULL,`game_id` INTEGER NOT NULL);
 
 
 
 DROP TABLE IF EXISTS `enum_status`;
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-
-/*!40101 SET character_set_client = utf8 */;
 
 CREATE TABLE `enum_status`(`enum_status_id` TINYINT NOT NULL PRIMARY KEY,`status_name` VARCHAR(12));
 
