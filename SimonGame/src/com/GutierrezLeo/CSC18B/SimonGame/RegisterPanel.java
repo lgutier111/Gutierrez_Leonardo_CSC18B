@@ -30,6 +30,7 @@ import java.util.NoSuchElementException;
 
 public class RegisterPanel extends JPanel {
 	
+	//Declare objects and variables
 	private JLabel firstNameLabel, lastNameLabel, emailLabel, studentIDLabel, dateLabel, headerLabel;
 	private JTextField firstNameTextField, lastNameTextField, emailTextField, studentIDTextField, dateTextField;
 	private SpringLayout currentLayout;
@@ -42,28 +43,43 @@ public class RegisterPanel extends JPanel {
 	private RegisterFrame parent;
 	private static Formatter output;   //outputs data to file
 	
+	//Registration panel constructor
 	public RegisterPanel() {
 		
+		//*****  Declare new labels with default text *****
+		
+		//First name label
 		firstNameLabel = new JLabel("Enter First Name:");
 		firstNameLabel.setForeground(Color.YELLOW);
+		
+		//Last name lable
 		lastNameLabel = new JLabel("Enter Last Name:");
 		lastNameLabel.setForeground(Color.YELLOW);
+		
+		//Email label
 		emailLabel = new JLabel("Enter email:");
 		emailLabel.setForeground(Color.YELLOW);
+		
+		//Student id label
 		studentIDLabel = new JLabel("Enter Student ID:");
 		studentIDLabel.setForeground(Color.YELLOW);
+		
+		//Date label
 		dateLabel = new JLabel("Birthdate (mm/dd/yyyy):");
 		dateLabel.setForeground(Color.YELLOW);
+		
+		//Header label
 		headerLabel = new JLabel("S I M O N   PLAYER REGISTRATION");
 		headerLabel.setForeground(Color.RED);
 
+		//****  Declare new text fields for labels above*****
 		firstNameTextField = new JTextField();
 		lastNameTextField = new JTextField();
 		emailTextField = new JTextField();
 		studentIDTextField = new JTextField();
 		dateTextField = new JTextField();
 		
-		
+		//Declare save button and set color and action
 		saveButton = new JButton("SAVE");
 		saveButton.setBackground(Color.WHITE);
 		saveButton.setAction(action);
@@ -72,6 +88,7 @@ public class RegisterPanel extends JPanel {
 			}
 		});
 		
+		//Layout for screen coded by Eclipse GUI builder
 		currentLayout = new SpringLayout();
 		currentLayout.putConstraint(SpringLayout.WEST, headerLabel, 89, SpringLayout.WEST, this);
 		currentLayout.putConstraint(SpringLayout.EAST, headerLabel, 300, SpringLayout.WEST, this);
@@ -107,16 +124,21 @@ public class RegisterPanel extends JPanel {
 		currentLayout.putConstraint(SpringLayout.WEST, firstNameLabel, 74, SpringLayout.WEST, this);
 		currentLayout.putConstraint(SpringLayout.NORTH, headerLabel, 26, SpringLayout.NORTH, this);
 		
-		
+		//Set up the panel components
 		setUpRegPanel();
 	}
 	
+	//Add components to the registration panel
 	private void setUpRegPanel(){
 		
+		//Set default colors to black and white
 		setForeground(Color.WHITE);
 		setBackground(Color.BLACK);
 		
+		//Set the layout for the panel
 		this.setLayout(currentLayout);
+		
+		//Add the labels and text fields for each item on the panel
 		this.add(headerLabel);
 		this.add(firstNameLabel);
 		this.add(firstNameTextField);
@@ -128,10 +150,15 @@ public class RegisterPanel extends JPanel {
 		this.add(studentIDTextField);
 		this.add(dateLabel);
 		this.add(dateTextField);
+		
+		//Add the save button
 		this.add(saveButton);
 		
-		add(thankYouLabel);
+		//The thank you label to display after user enters correct input
+		this.add(thankYouLabel);
 		
+		//Declare Done button with action and location relative to other button.  Coded by
+		//  eclipse GUI builder
 		JButton btnDone = new JButton("DONE");
 		btnDone.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -142,31 +169,28 @@ public class RegisterPanel extends JPanel {
 		btnDone.setBackground(Color.WHITE);
 		btnDone.setAction(done);
 		add(btnDone);
-		
-		//Put all the deatils for labels and text fields below:
-
 	}
 
+	
+	//Action for the SAVE button
 	private class SwingAction extends AbstractAction {
 		public SwingAction() {
 			putValue(NAME, "SAVE");
 			putValue(SHORT_DESCRIPTION, "Input Complete");
 		}
 		public void actionPerformed(ActionEvent e) {
-			//thankYouLabel = new Label("");
-			System.out.println("you have pressed the save button");
+			//Get the values entered by the user.
 			firstName = firstNameTextField.getText();
 			lastName = lastNameTextField.getText();
 			email = emailTextField.getText();
 			studentID = studentIDTextField.getText();
 			birthDate = dateTextField.getText();
-			System.out.println("FirstName entered: " + firstName);
-			System.out.println("LastName entered: " + lastName);
-			System.out.println("email entered: " + email);
-			System.out.println("Student ID entered: " + studentID);
-			System.out.println("Today's Date: " + birthDate);
+			
+			//Perform the verifyInput method to test the input by the user
 			verifyInput();
 			
+			//If the input by the user passes the verification process as valid input,
+			//    then space out the fields and thank the user for registering.
 			if (inputVerification){
 				firstNameTextField.setText("");
 				lastNameTextField.setText("");
@@ -175,54 +199,69 @@ public class RegisterPanel extends JPanel {
 				dateTextField.setText("");
 				thankYouLabel.setText("Thank You! User Registered");
 				
+				//Call the method to create the registration file for the user.
 				createTextFile();
 			}
 		}
 	}
 	
-	
+	//Verify all input by the user
 	private void verifyInput(){
 		
+		//If the first name does not start with a capital letter and/or is more than 20 bytes
+		//    long, a pop up window will let the user know the input and ask to re-enter the data
 		if (!ValidateInput.validateFirstName(firstName)){
 			JOptionPane.showMessageDialog(this, "Bad First Name, " + firstName 
-					+ ". Up to 20 characters only.");
+					+ ". Must start with a capital and up to 20 characters only.");
 			firstNameTextField.setText("");
+			
+		//If the last name does not start with a capital letter and/or is more than 20 bytes
+		//    long, a pop up window will let the user know the input and ask to re-enter the data
 		} else if (!ValidateInput.validateLastName(lastName)){
 			JOptionPane.showMessageDialog(this, "Bad Last Name, " + lastName 
 					+ ". Up to 20 characters only. Dashes and hyphens are allowed.");
 			lastNameTextField.setText("");
+			
+		//If the email entered is not a valid email address, a pop up window will let the user
+		//    know the input and ask to re-enter the data
 		} else if (!ValidateInput.validateEmail(email)){
 			JOptionPane.showMessageDialog(this, "Bad email address: " + email 
 					+ ". Please correct.");
 			emailTextField.setText("");
+			
+		//If the Student ID is invalid, a pop up window will let the user know the input and ask
+		//    the user to re-enter the data
 		} else if (!ValidateInput.validateStudentID(studentID)){
 			JOptionPane.showMessageDialog(this, "Bad student ID: " + studentID 
 					+ ". Please correct.");
 			studentIDTextField.setText("");
+			
+		//If the date of birth is invalid, a pop up window will let the user know the input and ask
+		//    the user to re-enter the data
 		} else if (!ValidateInput.validateDate(birthDate)){
 			JOptionPane.showMessageDialog(this, "Invalide date: " + birthDate 
 					+ ". Please correct.");
 			dateTextField.setText("");
+			
+		//If all the fields passed the regular expression tests, then set the validation to true and
+		//    thank the user for registering
 		} else
 			inputVerification = true;
 			System.out.println("Valid input.  Thank you. Input Verification is: " + inputVerification);
 	}
+	
+	
+	//Done button action - will set the hide the registration panel and activate the settings panel.
 	private class SwingAction_1 extends AbstractAction {
 		public SwingAction_1() {
 			putValue(NAME, "DONE");
 			putValue(SHORT_DESCRIPTION, "Done with registration");
 		}
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("You have pressed the DONE button");
+			//System.out.println("You have pressed the DONE button");
 			setVisible(false);
 			SettingsPanel settingsPanel = new SettingsPanel();
-			parent = new RegisterFrame();
-			parent.setTitle("SETTINGS");
-			//parent.add(settingsPanel);
 			settingsPanel.setVisible(true);
-			//parent.setVisible(false);
-			//parent.dispose();
-			////parent.ParentCloseMe();
 		}
 	}
 	

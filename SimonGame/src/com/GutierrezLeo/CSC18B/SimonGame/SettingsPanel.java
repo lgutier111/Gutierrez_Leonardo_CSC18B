@@ -32,7 +32,6 @@ import javax.swing.Action;
 
 public class SettingsPanel extends JPanel {
 	private final Action action = new Save();
-	private final Action action_1 = new Cancel();
 	private final Action action_2 = new Original();
 	private final Action action_3 = new ColorSwatch();
 	private final Action action_5 = new radioEasy();
@@ -51,8 +50,8 @@ public class SettingsPanel extends JPanel {
 	private SimonWelcome simonWelcome;
 	private RegisterFrame registerFrame;
 
-	private static ObjectOutputStream output;   //outputs data to file
-	private static ObjectInputStream input;  //read input data file
+	private static ObjectOutputStream output;  //outputs data to file
+	private static ObjectInputStream input;    //read input data file
 	private Color color;
 	
 	private JRadioButton rdbtnEasy = new JRadioButton("Easy");
@@ -67,13 +66,13 @@ public class SettingsPanel extends JPanel {
 		setUpSettingsPanel();
 		
 		readSequentialFile();
-		System.out.println("In the constructor after reading the input file");
-		System.out.println("                   the settings are: fileStatusSetting: " + fileStatusSetting
-				                                              + "  difficultySetting: " + difficultySetting
-				                                              + "  soundSetting:      " + soundSetting
-				                                              + "  rSetting:          " + rSetting
-				                                              + "  gSetting:          " + gSetting
-				                                              + "  bSetting:          " + bSetting);
+		//System.out.println("In the constructor after reading the input file");
+		//System.out.println("                   the settings are: fileStatusSetting: " + fileStatusSetting
+		//		                                              + "  difficultySetting: " + difficultySetting
+		//		                                              + "  soundSetting:      " + soundSetting
+		//		                                              + "  rSetting:          " + rSetting
+		//		                                              + "  gSetting:          " + gSetting
+		//		                                              + "  bSetting:          " + bSetting);
 		
 		color = new Color(rSetting, gSetting, bSetting);
 		setBackground(color);
@@ -214,32 +213,24 @@ public class SettingsPanel extends JPanel {
 			putValue(SHORT_DESCRIPTION, "Save game settings");
 		}
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("You have pressed the SAVE button");
-			System.out.println("Stored values are: " + difficultySetting + "," + soundSetting + ","
-					+ rSetting + "," + gSetting + "," + bSetting + ",");
+			//System.out.println("You have pressed the SAVE button");
+			//System.out.println("Stored values are: " + difficultySetting + "," + soundSetting + ","
+			//		+ rSetting + "," + gSetting + "," + bSetting + ",");
 			
 			//Set the file status setting to 1.  If the game abnormally ends, it will restore the settings being saved.
 			fileStatusSetting = 1;
 			createSequentialFile();
 			
+			//registerFrame = new RegisterFrame();
+			//registerFrame.pack();
 			setVisible(false);
-			registerFrame = new RegisterFrame();
-			registerFrame.setVisible(false);
-			simonWelcome = new SimonWelcome();
-			simonWelcome.setVisible(true);
-		}
-	}
-	
-	private class Cancel extends AbstractAction {
-		public Cancel() {
-			putValue(NAME, "Cancel");
-			putValue(SHORT_DESCRIPTION, "Cancel game settings");
-		}
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("You have pressed the CANCEL button");
-			setVisible(false);
-			registerFrame = new RegisterFrame();
-			registerFrame.setVisible(false);
+			//
+			
+			//registerFrame.closeFrame();
+			//registerFrame.setLocation(0,0);
+			//registerFrame.setVisible(false);
+			//registerFrame.dispose();
+			
 			simonWelcome = new SimonWelcome();
 			simonWelcome.setVisible(true);
 		}
@@ -251,7 +242,7 @@ public class SettingsPanel extends JPanel {
 			putValue(SHORT_DESCRIPTION, "Original background color");
 		}
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("You have pressed the ORIGINAL button");
+			//System.out.println("You have pressed the ORIGINAL button");
 			setBackground(Color.BLACK);
 			rSetting = 0;
 			gSetting = 0;
@@ -265,16 +256,16 @@ public class SettingsPanel extends JPanel {
 			putValue(SHORT_DESCRIPTION, "Bring up the Color Swatch to change color");
 		}
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("You have pressed the COLOR SWATCH button");
+			//System.out.println("You have pressed the COLOR SWATCH button");
 			JFrame ShowColors2JFrame = new JFrame();
 			color = JColorChooser.showDialog(ShowColors2JFrame, "Choose a color", color);
 			if (color == null)
 				color = Color.BLACK;
 			setBackground(color);
-			System.out.println("The color selected is: " + color);
-			System.out.println("Red value is: " + color.getRed());
-			System.out.println("Green value is: " + color.getGreen());
-			System.out.println("Blue value is: " + color.getBlue());
+			//System.out.println("The color selected is: " + color);
+			//System.out.println("Red value is: " + color.getRed());
+			//System.out.println("Green value is: " + color.getGreen());
+			//System.out.println("Blue value is: " + color.getBlue());
 			rSetting = color.getRed();
 			gSetting = color.getGreen();
 			bSetting = color.getBlue();
@@ -287,9 +278,9 @@ public class SettingsPanel extends JPanel {
 			putValue(SHORT_DESCRIPTION, "Easy Setting");
 		}
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("You have selected Easy setting");
+			//System.out.println("You have selected Easy setting");
 			difficultySetting = 1;
-			System.out.println("Difficulty setting: " + difficultySetting);
+			//System.out.println("Difficulty setting: " + difficultySetting);
 		}
 	}
 	
@@ -299,9 +290,9 @@ public class SettingsPanel extends JPanel {
 			putValue(SHORT_DESCRIPTION, "Medium setting");
 		}
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("You have selected Medium setting");
+			//System.out.println("You have selected Medium setting");
 			difficultySetting = 2;
-			System.out.println("Difficulty setteing: " + difficultySetting);
+			//System.out.println("Difficulty setteing: " + difficultySetting);
 		}
 	}
 	
@@ -311,9 +302,9 @@ public class SettingsPanel extends JPanel {
 			putValue(SHORT_DESCRIPTION, "Hard setting");
 		}
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("You have selected Hard setting");
+			//System.out.println("You have selected Hard setting");
 			difficultySetting = 3;
-			System.out.println("Difficulty setting" + difficultySetting);
+			//System.out.println("Difficulty setting" + difficultySetting);
 		}
 	}
 	private class radioSoundOff extends AbstractAction {
@@ -322,7 +313,7 @@ public class SettingsPanel extends JPanel {
 			putValue(SHORT_DESCRIPTION, "Turn Sound Off");
 		}
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("You have turned the sound off");
+			//System.out.println("You have turned the sound off");
 			soundSetting = 0;
 		}
 	}
@@ -332,17 +323,15 @@ public class SettingsPanel extends JPanel {
 			putValue(SHORT_DESCRIPTION, "Turn Sound On");
 		}
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("You have turned the sound on");
+			//System.out.println("You have turned the sound on");
 			soundSetting = 1;
 		}
 	}
 	
 private void createSequentialFile(){
-		
 		openFile();
 		addRecord();
 		closeFile();
-		
 	}
 	
 	public static void openFile(){
@@ -398,16 +387,13 @@ private void createSequentialFile(){
 	}
 	
 	public void readSequentialFile(){
-    	
     	openFileInput();
     	readRecord();
     	closeFileInput();
-    	
     }
 	
 	
 	public void openFileInput(){
-    	
     	try
     	{
     		input = new ObjectInputStream(Files.newInputStream(Paths.get("simonsettings.ser")));
@@ -420,7 +406,6 @@ private void createSequentialFile(){
     }
     
     public void readRecord(){
-    	
     	try
     	{
     		while (true)
@@ -428,7 +413,7 @@ private void createSequentialFile(){
     			GameSettings setting = (GameSettings) input.readObject();
     			fileStatusSetting = setting.getFileStatus();
     			
-    			System.out.println("THE difficultySetting is: " + difficultySetting);
+    			//System.out.println("THE difficultySetting is: " + difficultySetting);
     			
     			difficultySetting = setting.getDifficulty();
     			if(difficultySetting == 1){
@@ -458,7 +443,7 @@ private void createSequentialFile(){
     			
     			if(fileStatusSetting == 0){
     				//use default settings if app was closed properly and not interrupted last time it was running
-    				System.out.println("You are in the FILESTATUS = 0 if stmt");
+    				//System.out.println("You are in the FILESTATUS = 0 if stmt");
     				fileStatusSetting = 1;
     				difficultySetting = 1;
     				soundSetting = 1;
@@ -470,13 +455,13 @@ private void createSequentialFile(){
     				//color = new Color(0,0,0);
     			}
     			
-    			System.out.println("You are reading the file in the Settings Panel");
-    			System.out.println("Settings in file are fileStatus: " + fileStatusSetting +
-    					"difficulty: " + difficultySetting +
-    					"sound: " + soundSetting +
-    					"R setting: " + rSetting +
-    					"G setting: " + gSetting +
-    					"B setting: " + bSetting);
+    			//System.out.println("You are reading the file in the Settings Panel");
+    			//System.out.println("Settings in file are fileStatus: " + fileStatusSetting +
+    			//		"difficulty: " + difficultySetting +
+    			//		"sound: " + soundSetting +
+    			//		"R setting: " + rSetting +
+    			//		"G setting: " + gSetting +
+    			//		"B setting: " + bSetting);
     		}
     	}
     	catch (EOFException endOfFileException)
@@ -494,7 +479,6 @@ private void createSequentialFile(){
     }
     
     public void closeFileInput(){
-    	
     	try
     	{
     		if (input != null)

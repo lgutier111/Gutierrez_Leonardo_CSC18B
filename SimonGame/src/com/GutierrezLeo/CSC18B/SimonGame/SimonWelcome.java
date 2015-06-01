@@ -1,6 +1,10 @@
 package com.GutierrezLeo.CSC18B.SimonGame;
 
 import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Toolkit;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -33,12 +37,11 @@ public class SimonWelcome extends javax.swing.JFrame {
 	private int G;
 	private int B;
     private SimonGamePanel gamePanel;
-    //private RegisterFrame r = new RegisterFrame();
     
     // Constructor to the splash screen
     public SimonWelcome() {
     	
-    	System.out.println("You are in the SimonWelcome constructor");
+    	//System.out.println("You are in the SimonWelcome constructor");
     	
        try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -86,16 +89,21 @@ public class SimonWelcome extends javax.swing.JFrame {
         oLabel = new javax.swing.JLabel();
         nLabel = new javax.swing.JLabel();
 
-        // Set the splash screen parametsw
+        // Set the welcome screen parameters
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Welcom to S I M O N");
+        setTitle("S I M O N  Game Play...");
         setAutoRequestFocus(false);
-        setBounds(new java.awt.Rectangle(400, 200, 0, 0));
-        setLocationByPlatform(true);
-        setMaximumSize(new java.awt.Dimension(600, 600));
+        //setBounds(new java.awt.Rectangle(400, 200, 0, 0));
+        //setLocationByPlatform(true);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int height = screenSize.height;
+        int width = screenSize.width;
+        setSize(width/2, height/2);
+        //setMaximumSize(new Dimension(600, 600));
         setName("SimonWelcome"); // NOI18N
-        setPreferredSize(new java.awt.Dimension(600, 600));
+        setPreferredSize(new Dimension(600, 600));
         setResizable(false);
+        setLocationRelativeTo(null);
 
         // Play button details
         playButton.setFont(new java.awt.Font("Calibri", 0, 14)); // NOI18N
@@ -117,13 +125,13 @@ public class SimonWelcome extends javax.swing.JFrame {
         });
 
         // Scroll pane details
-        simonDescriptionScollPane.setFont(new java.awt.Font("Calibri", 0, 11)); // NOI18N
+        simonDescriptionScollPane.setFont(new Font("Calibri", 0, 11)); // NOI18N
 
         simonDescriptionTextArea.setEditable(false);
         simonDescriptionTextArea.setBackground(color);
         simonDescriptionTextArea.setForeground(Color.YELLOW);
         simonDescriptionTextArea.setColumns(20);
-        simonDescriptionTextArea.setFont(new java.awt.Font("Calibri", 0, 14)); // NOI18N
+        simonDescriptionTextArea.setFont(new Font("Calibri", 0, 14)); // NOI18N
         simonDescriptionTextArea.setLineWrap(true);
         simonDescriptionTextArea.setRows(5);
         
@@ -135,7 +143,7 @@ public class SimonWelcome extends javax.swing.JFrame {
         		+ "and sounds for as long as\n"
         		+ "                  you can...");
         simonDescriptionTextArea.setWrapStyleWord(true);
-        simonDescriptionTextArea.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+        simonDescriptionTextArea.setCursor(new Cursor(Cursor.TEXT_CURSOR));
         simonDescriptionScollPane.setViewportView(simonDescriptionTextArea);
 
         
@@ -143,37 +151,23 @@ public class SimonWelcome extends javax.swing.JFrame {
         // screen is visible.
         
         // S Label
-        sLabel.setFont(new java.awt.Font("Gulim", 0, 24)); // NOI18N
-        sLabel.setBackground(Color.BLACK);
-        //sLabel.setForeground(Color.WHITE);
+        sLabel.setFont(new java.awt.Font("Gulim", 0, 24));
         sLabel.setText("S");
         
         // I Label
-        iLabel.setFont(new java.awt.Font("Gulim", 0, 24)); // NOI18N
-        //iLabel.setForeground(new java.awt.Color(255, 255, 255));
-        //iLabel.setForeground(Color.WHITE);
-        iLabel.setBackground(Color.BLACK);
+        iLabel.setFont(new java.awt.Font("Gulim", 0, 24));
         iLabel.setText("I");
 
         // M Label
-        mLabel.setFont(new java.awt.Font("Gulim", 0, 24)); // NOI18N
-        //mLabel.setForeground(new java.awt.Color(255, 255, 255));
-        mLabel.setBackground(Color.BLACK);
-        //mLabel.setForeground(Color.WHITE);
+        mLabel.setFont(new java.awt.Font("Gulim", 0, 24));
         mLabel.setText("M");
 
         // O Label
-        oLabel.setFont(new java.awt.Font("Gulim", 0, 24)); // NOI18N
-        //oLabel.setForeground(new java.awt.Color(255, 255, 255));
-        oLabel.setBackground(Color.BLACK);
-        //oLabel.setForeground(Color.WHITE);
+        oLabel.setFont(new java.awt.Font("Gulim", 0, 24));
         oLabel.setText("O");
 
         // N Label
-        nLabel.setFont(new java.awt.Font("Gulim", 0, 24)); // NOI18N
-        //nLabel.setForeground(new java.awt.Color(255, 255, 255));
-        nLabel.setBackground(Color.BLACK);
-        //nLabel.setForeground(Color.WHITE);
+        nLabel.setFont(new java.awt.Font("Gulim", 0, 24));
         nLabel.setText("N");
         
         
@@ -231,7 +225,6 @@ public class SimonWelcome extends javax.swing.JFrame {
 
     // Call and place the Arc Panel 
     private void placeArcPanel(){
-    	
     	arcsJPanel = new ArcsJPanel();
         arcsJPanel.setBackground(color);
         arcsJPanel.setSize(260, 170);
@@ -242,61 +235,20 @@ public class SimonWelcome extends javax.swing.JFrame {
     
     // The colorful SIMON labels
     private void colorfulSimon(){
-    	
     	sLabel.setForeground(Color.BLUE);
 		iLabel.setForeground(Color.RED);
 		mLabel.setForeground(Color.GREEN);
 		oLabel.setForeground(Color.YELLOW);
 		nLabel.setForeground(Color.MAGENTA);
-    	
-    	/*
-    	do{
-        	System.out.println("You are in the while loop");
-        	for (int x = 0; x > 500000; x++){
-        		System.out.println("You are in the for loop");
-        		System.out.println(x);
-        		if (x < 100000){
-        			sLabel.setForeground(Color.BLUE);
-        			iLabel.setForeground(Color.RED);
-        			mLabel.setForeground(Color.GREEN);
-        			oLabel.setForeground(Color.YELLOW);
-        			nLabel.setForeground(Color.MAGENTA);
-        		} else if(x >= 100000 && x < 200000){
-        				sLabel.setForeground(Color.GREEN);
-            			iLabel.setForeground(Color.YELLOW);
-            			mLabel.setForeground(Color.MAGENTA);
-            			oLabel.setForeground(Color.RED);
-            			nLabel.setForeground(Color.BLUE);
-        			} else if (x >= 200000 && x < 300000){
-        				sLabel.setForeground(Color.RED);
-            			iLabel.setForeground(Color.GREEN);
-            			mLabel.setForeground(Color.BLUE);
-            			oLabel.setForeground(Color.MAGENTA);
-            			nLabel.setForeground(Color.YELLOW);
-        			} else if (x >= 300000 && x < 400000){
-        				sLabel.setForeground(Color.YELLOW);
-            			iLabel.setForeground(Color.MAGENTA);
-            			mLabel.setForeground(Color.RED);
-            			oLabel.setForeground(Color.BLUE);
-            			nLabel.setForeground(Color.GREEN);
-        			}
-        		}
-    			
-        	
-        } while (this.isVisible());
-    	*/
     }
     
     public void readSequentialFile(){
-    	
     	openFile();
     	readRecord();
     	closeFile();
-    	
     }
     
     public void openFile(){
-    	
     	try
     	{
     		input = new ObjectInputStream(Files.newInputStream(Paths.get("simonsettings.ser")));
@@ -309,7 +261,6 @@ public class SimonWelcome extends javax.swing.JFrame {
     }
     
     public void readRecord(){
-    	
     	try
     	{
     		while (true)
@@ -322,12 +273,12 @@ public class SimonWelcome extends javax.swing.JFrame {
     			G = setting.getG();
     			B = setting.getB();
     			
-    			System.out.println("Settings in file are fileStatus: " + fileStatus +
-    					"difficulty: " + difficulty +
-    					"sound: " + sound +
-    					"R setting: " + R +
-    					"G setting: " + G +
-    					"B setting: " + B);
+    			//System.out.println("Settings in file are fileStatus: " + fileStatus +
+    			//		"difficulty: " + difficulty +
+    			//		"sound: " + sound +
+    			//		"R setting: " + R +
+    			//		"G setting: " + G +
+    			//		"B setting: " + B);
     		}
     	}
     	catch (EOFException endOfFileException)
@@ -345,7 +296,6 @@ public class SimonWelcome extends javax.swing.JFrame {
     }
     
     public void closeFile(){
-    	
     	try
     	{
     		if (input != null)
@@ -361,7 +311,7 @@ public class SimonWelcome extends javax.swing.JFrame {
     
     // Play Button action defined
     private void playButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        System.out.println("You have pressed the play button in SimonWelcome");
+        //System.out.println("You have pressed the play button in SimonWelcome");
         remove(playButton);
         remove(exitButton);
         remove(simonDescriptionTextArea);
@@ -372,7 +322,9 @@ public class SimonWelcome extends javax.swing.JFrame {
         remove(oLabel);
         remove(nLabel);
         remove(arcsJPanel);
-        gamePanel = new SimonGamePanel();
+
+		gamePanel = new SimonGamePanel();
+        
         getContentPane().add(gamePanel);
         gamePanel.setBackground(color);
         gamePanel.setSize(600, 600);

@@ -20,8 +20,6 @@ public class ArcsJPanel extends JPanel{
    public void paintComponent(Graphics g){
 	   
       super.paintComponent(g);  
-      //this.setBackground(Color.BLACK);
-      
       
       // start at 270 and sweep -90 degrees
       //       (  x,   y, width, height, startAngle, arcAngle)

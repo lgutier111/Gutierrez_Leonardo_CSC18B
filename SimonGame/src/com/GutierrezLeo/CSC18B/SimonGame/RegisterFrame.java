@@ -1,7 +1,6 @@
 package com.GutierrezLeo.CSC18B.SimonGame;
 
 import java.awt.Dimension;
-
 import javax.swing.JFrame;
 
 public class RegisterFrame extends JFrame {
@@ -12,55 +11,50 @@ public class RegisterFrame extends JFrame {
 	
 	public RegisterFrame() {
 		
-		setUpFrame();
+		//Set to close program on exit
+		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+		
+		//Place REGISTRATION at the top of the registration window
+		setTitle("GAME SET UP");
+		
+		//Set size and window defaults
+		setSize(400,500);
+		setResizable(false);
+		setMaximumSize(new Dimension(400, 500));
+	    setPreferredSize(new Dimension(400, 500));
+	    
+	    //Set location to center of screen
+	    setLocationRelativeTo(null);
+		
+		//Perform the registration frame set up
+		setUpFrameRegister();
+		setUpFrameSettings();
+		
+	}
+				
+	private void setUpFrameRegister(){
+		
+		//Add the registration panel to the JFrame;
+		getContentPane().add(registerPanel);
+		
+		//Make the registration screen visible
+		setVisible(true);
 		
 	}
 	
-	private void setUpFrame(){
+	private void setUpFrameSettings(){
 		
-		
-		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-		//setContentPane(registerPanel);
-		getContentPane().add(registerPanel);
-		setTitle("REGISTRATION");
-		setSize(400,500);
-		setResizable(false);
-		setMaximumSize(new Dimension(400, 500));
-	    //setName("REGISTRATION");
-	    setPreferredSize(new Dimension(400, 500));
-		setLocation(200,200);
-		//setAlwaysOnTop(true);
-		setVisible(true);
-		
+		//Add the settings panel on the JPanel with default settings 
 		getContentPane().add(settingsPanel);
-		//setTitle("SETTINGS");
-		setSize(400,500);
-		setResizable(false);
-		setMaximumSize(new Dimension(400, 500));
-		//setName("SETTINGS");
-		setPreferredSize(new Dimension(400, 500));
-		setLocation(200,200);
+		
+		//Make the settings panel invisible for the moment
 		setVisible(false);
 		
 	}
 	
-	public void ParentCloseMe(){
-	// Hide the frame
-		System.out.println("You are in the parent close me method in the FRAME");
-		getContentPane().setVisible(false);
-		//setVisible(false);
-		//dispose();
-		simoneWelcome = new SimonWelcome();
-		simoneWelcome.setVisible(true);
+	public void closeFrame(){
 		this.setVisible(false);
-		//System.exit(1);
+		this.dispose();
 	}
 	
-	 public static void main(String args[]) {
-	        java.awt.EventQueue.invokeLater(new Runnable() {
-	            public void run() {
-	                new RegisterFrame().setVisible(true);
-	            }
-	        });
-	    }
 }

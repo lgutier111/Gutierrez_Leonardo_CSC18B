@@ -1,12 +1,21 @@
 package com.GutierrezLeo.CSC18B.SimonGame;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Label;
+import java.awt.TextField;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Random;
+import java.util.Scanner;
 
 import javax.print.DocFlavor.URL;
 import javax.sound.sampled.AudioInputStream;
@@ -15,6 +24,9 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
@@ -25,19 +37,31 @@ import javax.swing.JPanel;
  * 			Riverside City College
  */
 //public class SimonGamePanel extends javax.swing.JPanel {
-public class SimonGamePanel extends JPanel{
+public class SimonGamePanel extends JPanel implements ActionListener{
 	
 	private static Color color = new Color(0,0,0);
 	private ObjectInputStream input;
 	private int fileStatus;
 	private int difficulty;
-	private int sound;
+	protected int sound;
 	private int R;
 	private int G;
 	private int B;
-	
+	private int simonArraySize;
+	private int n = 0;
 	private int gameScore = 0;
+	private int seqCounter = 0;
+	
+	private char[] simonArray;
+	private char[] userArray;
+	
+	private long startTime;
+	private long stopTime;
+	private double timeToPress;
+
 	private boolean successfulTry = true;
+	private boolean result = true;
+	private boolean arraysGood = true;
 	
 	private File loseFile = new File("loseGame.wav");
 	private File redFile = new File("redSound.wav");
@@ -46,32 +70,35 @@ public class SimonGamePanel extends JPanel{
 	private File blueFile = new File("blueSound.wav");
 	
 	private ImageIcon blueOff = new ImageIcon(getClass().getResource("blue_arch_OFF.fw.png"));
-	private ImageIcon blueOn = new ImageIcon(getClass().getResource("blue_arch_ON.fw.png"));
+	protected ImageIcon blueOn = new ImageIcon(getClass().getResource("blue_arch_ON.fw.png"));
 	private ImageIcon blueRollover = new ImageIcon(getClass().getResource("blue_arch_ON.fw.png"));
 
 	private ImageIcon redOff = new ImageIcon(getClass().getResource("red_arch_OFF.fw.png"));
-	private ImageIcon redOn = new ImageIcon(getClass().getResource("red_arch_ON.fw.png"));
+	protected ImageIcon redOn = new ImageIcon(getClass().getResource("red_arch_ON.fw.png"));
 	private ImageIcon redRollover = new ImageIcon(getClass().getResource("red_arch_ON.fw.png"));
 	
 	private ImageIcon greenOff = new ImageIcon(getClass().getResource("green_arch_OFF.fw.png"));
-	private ImageIcon greenOn = new ImageIcon(getClass().getResource("green_arch_ON.fw.png"));
+	protected ImageIcon greenOn = new ImageIcon(getClass().getResource("green_arch_ON.fw.png"));
 	private ImageIcon greenRollover = new ImageIcon(getClass().getResource("green_arch_ON.fw.png"));
 
 	private ImageIcon yellowOff = new ImageIcon(getClass().getResource("yellow_arch_OFF.fw.png"));
-	private ImageIcon yellowOn = new ImageIcon(getClass().getResource("yellow_arch_ON.fw.png"));
+	protected ImageIcon yellowOn = new ImageIcon(getClass().getResource("yellow_arch_ON.fw.png"));
 	private ImageIcon yellowRollover = new ImageIcon(getClass().getResource("yellow_arch_ON.fw.png"));
 
+	private ScoreFrame highScore_Frame;
 
-    /**
-     * Creates new form SimonGamePanel
-     */
-    public SimonGamePanel() {
-        System.out.println("You are in the SimonGamePanel constructor");
+	
+    public SimonGamePanel(){
+    //public SimonGamePanel(){
+        //System.out.println("You are in the SimonGamePanel constructor");
         
     	readSequentialFile();
     	color = new Color(R, G, B);
 
         initComponents();
+        
+        gameSetUp();
+        
     }
 
     /**
@@ -82,19 +109,19 @@ public class SimonGamePanel extends JPanel{
     //@SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
     private void initComponents() {
-
-    	
+    	//System.out.println("You are in the initComponents metnod");
     	// Declare all buttons, labels and text boxes for the panel
-        exitButton = new javax.swing.JButton();
-        scoreTextField = new java.awt.TextField();
-        highScoreTextField = new java.awt.TextField();
-        scoreLabel = new java.awt.Label();
-        highScoreLabel = new java.awt.Label();
-        greenButton = new javax.swing.JButton();
-        redButton = new javax.swing.JButton();
-        blueButton = new javax.swing.JButton();
-        yellowButton = new javax.swing.JButton();
-        simonLabel = new javax.swing.JLabel();
+        exitButton = new JButton();
+        scoreTextField = new TextField();
+        highScoreTextField = new TextField();
+        scoreLabel = new Label();
+        highScoreLabel = new Label();
+        greenButton = new JButton();
+        redButton = new JButton();
+        blueButton = new JButton();
+        yellowButton = new JButton();
+        simonLabel = new JLabel();
+        goButton = new JButton();
 
         // Set max and preferred panel size
         setMaximumSize(new java.awt.Dimension(600, 600));
@@ -104,8 +131,8 @@ public class SimonGamePanel extends JPanel{
         exitButton.setBackground(color);
         exitButton.setForeground(Color.WHITE);
         exitButton.setText("Exit");
-        exitButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        exitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 exitButtonActionPerformed(evt);
             }
         });
@@ -115,8 +142,8 @@ public class SimonGamePanel extends JPanel{
         scoreTextField.setEditable(false);
         scoreTextField.setForeground(new java.awt.Color(255, 255, 255));
         scoreTextField.setText("00");
-        scoreTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        scoreTextField.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 scoreTextFieldActionPerformed(evt);
             }
         });
@@ -138,50 +165,40 @@ public class SimonGamePanel extends JPanel{
         greenButton.setIcon(greenOff);
         greenButton.setBackground(color);
         greenButton.setRolloverIcon(greenRollover);
-        greenButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                greenButtonActionPerformed(evt);
-            }
-        });
+        greenButton.addActionListener(this);
 
         // Red button details
         redButton.setIcon(redOff);
         redButton.setBackground(color);
         redButton.setRolloverIcon(redRollover);
-        redButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                redButtonActionPerformed(evt);
-            }
-        });
+        redButton.addActionListener(this);
 
         // Blue button details
         blueButton.setIcon(blueOff);
         blueButton.setBackground(color);
         blueButton.setRolloverIcon(blueRollover);
-        blueButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                blueButtonActionPerformed(evt);
-            }
-        });
+        blueButton.addActionListener(this);
 
         // Yellow button details
         yellowButton.setIcon(yellowOff);
         yellowButton.setBackground(color);
         yellowButton.setRolloverIcon(yellowRollover);
-        yellowButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                yellowButtonActionPerformed(evt);
-            }
-        });
+        yellowButton.addActionListener(this);
 
         // Simon label details
         simonLabel.setFont(new java.awt.Font("Gulim", 0, 36));
         simonLabel.setBackground(color);
         simonLabel.setForeground(Color.YELLOW);
         simonLabel.setText("S  I  M  O  N");
+        
+        goButton.setText("GO");
+        goButton.addActionListener(new ActionListener(){
+        	public void actionPerformed(ActionEvent evt){
+        		goButtonActionPerformed(evt);
+        	}
+        });
 
         
-        // Panel layout details created in NetBeans using the GUI builder
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -191,7 +208,10 @@ public class SimonGamePanel extends JPanel{
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(83, 83, 83)
                         .addComponent(exitButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 341, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 104, Short.MAX_VALUE)
+                        .addComponent(goButton)
+                        .addGap(50, 50, 50)
+//                        .addGap(75, 75, 75)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(highScoreLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -210,9 +230,9 @@ public class SimonGamePanel extends JPanel{
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(redButton, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(blueButton, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(128, Short.MAX_VALUE))
+                .addContainerGap(92, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
-                .addGap(214, 214, 214)
+                .addGap(165, 165, 165)
                 .addComponent(simonLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -222,37 +242,376 @@ public class SimonGamePanel extends JPanel{
                 .addGap(32, 32, 32)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(greenButton, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(redButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(redButton, javax.swing.GroupLayout.PREFERRED_SIZE, 180, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addComponent(simonLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(yellowButton, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(blueButton, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(17, 17, 17)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(scoreTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(scoreLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(exitButton)
-                    .addComponent(highScoreLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(highScoreTextField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(yellowButton, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(blueButton, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(17, 17, 17)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(scoreTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(scoreLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(exitButton)
+                            .addComponent(highScoreLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(highScoreTextField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(goButton)
+                        .addGap(3, 3, 3)))
                 .addGap(34, 34, 34))
         );
-    }// </editor-fold>                        
+    }// </editor-fold>//GEN-END:initComponents
+    
+    public void gameSetUp(){
+    	//System.out.println("You are in the gameSetUp method");
+    	fillSimonArray();
+    	
+    }
+    
+    // Array values		The values for the simon array are populated here.
+    //    They are randomly selected and assigned a letter.
+    //			1 = green			assign 'G'	
+    //			2 = red				assign 'R'	
+    //			3 = yellow			assign 'Y'	
+    //			4 = blue			assign 'B'
+    // 
+    //  The stop watch is also initiated here.  The user will have 5 seconds at the most
+    //    in between clicking each subsequent button.
+    public void fillSimonArray(){
+    	//System.out.println("You are in the fillSimonArray method");
+    	int numLtr;
+    	
+    	switch(difficulty)
+    	{
+    	case 1:	simonArraySize = 4;
+    			break;
+    	case 2: simonArraySize = 20;
+    			break;
+    	default: simonArraySize = 31;
+    			 break;
+    	}
+
+    	simonArray = new char [simonArraySize];
+    	
+    	//System.out.println("fillSimonArray:    The simonArraySize is: " + simonArraySize);
+    	
+    	for (int count = 0; count < simonArraySize; count++){
+        	numLtr = getRndm();
+        	//System.out.println("the random number was: " + numLtr);
+        	switch (numLtr)
+        	{
+        	case 1:			simonArray[count] = 'G';			//green
+        					break;
+        	case 2:			simonArray[count] = 'R';			//red
+        					break;
+        	case 3:			simonArray[count] = 'Y';			//yellow
+        					break;
+        	default:		simonArray[count] = 'B';			//blue
+        					break;
+        	}
+    	}
+    	
+    	// ***************************************************************************
+    	// ***************************************************************************
+    	//   O V E R R I D E   T H E   A B O V E   A R R A Y   W I T H   S T A T I C 
+    	//   A R R A Y   V A L U E S   F O R   T E S T I N G
+    	// ***************************************************************************
+    	// ***************************************************************************
+    	
+    	simonArray[0] = 'R';
+    	simonArray[1] = 'B';
+    	simonArray[2] = 'Y';
+    	simonArray[3] = 'Y';
+    	
+    	
+    	//  Initialize the user array (cannot be nulls)
+    	initializeUserArray();
+    	
+    }
+    
+    // Initialize the user array the all 'A'.  Replace each as the game continues.
+    public void initializeUserArray(){
+    	//System.out.println("You are in the initializeUserArray method");
+    	userArray = new char [simonArraySize];
+    	
+    	for (int count = 0; count < simonArraySize; count++){
+    		userArray[count] = 'A';
+    	}
+    }
+    
+    // Generate a random number from 1 to 4
+    public int getRndm(){
+    	//System.out.println("You are in the getRndm method");
+    	Random rand = new Random();
+    	int random = rand.nextInt(4) + 1;
+    	return random;
+    }
+    
+   
+    // Score text field actions
+    private void scoreTextFieldActionPerformed(ActionEvent evt) {
+    	//System.out.println("***** You are in the scoreTextFieldActionPreformed method *****");
+    	
+    }                                              
 
     
-    public void readSequentialFile(){
+    // GO button to start the game play
+    private void goButtonActionPerformed(ActionEvent evt) {
+    	//System.out.println("GO BUTTON:     You have pressed the GO button");
     	
+    	// Wait 1 second
+    	waitExec(1000);
+    	
+    	// Set the clock to zero for the first input
+    	startStopWatch();
+    	
+    	userPlay();
+      	
+    	//if (arraysGood){
+    	//	System.out.println("You won the game");
+    	//} else {
+    	//	System.out.println("You lost the game");
+    	//}
+    	
+    	//checkScore();
+    }
+
+    
+ // The game starts here
+    private void userPlay(){
+    	System.out.println("***** You are in the userPlay method *****");
+    	int j = n + 1;
+    	// show user the simon array
+    	for (int i = 0; i < j; i++){
+    		playSimonArray(i);
+    		i++;
+    	}
+    	
+    	getUserInput(n);
+    }
+    
+    private void playSimonArray(int n){
+    	
+    	System.out.println("***** You are in the playSimonArray method *****");
+    	System.out.println("playSimonArray:    n in the playSimonArray is: " + n);
+    	System.out.println("playSimonArray:    the simonArray[" + n + "] value before FAKE click is: " + simonArray[n]);
+    	
+    	if(simonArray[n] == 'G'){
+    		
+    		greenButton.doClick();
+    		waitExec(500);
+    			
+    	}
+    	
+    	if(simonArray[n] == 'R'){
+    		redButton.doClick();
+    		waitExec(500);
+    		
+     	}
+    	
+    	if(simonArray[n] == 'Y'){
+    		yellowButton.doClick();
+    		waitExec(500);
+    		
+     	}
+    	
+    	if(simonArray[n] == 'B'){
+     		blueButton.doClick();
+    		waitExec(500);
+     		
+     	}
+    }
+    
+    private void getUserInput(int n){
+    	System.out.println("*****  You are in the getUserinput method *****");
+    	System.out.println("getUserInput:     n in the getUserInput is: " + n);
+    	System.out.println("getUserInput:     userArray[" + n + "] has: " + userArray[n]);
+        
+        verifyTimeToPress();
+        //System.out.println("getUserInput:    Get user input iteration n is: " + n);        
+        
+        // check score is here temporarily until the game is working
+        // checkScore is to verify the score and call the high score screen.
+        //checkScore();
+    }
+    
+    private void verifyTimeToPress(){
+    	//System.out.println("You are in the verifyTimeToPress method");
+        // check time it took to press the button.  Longer than 5 seconds ends the game.
+        timeToPress = elapsedTime();
+        //System.out.println("verifyTimeToPress:     Elapsed time was: " + timeToPress);
+        
+        //if(timeToPress > 5){
+        	//System.out.println("verifyTimeToPress:     Too much time");
+        //}
+        startStopWatch();
+    }
+    
+    
+    //Start the stop watch
+    public void startStopWatch(){
+    	//System.out.println("You are in the startStopWatch method");
+    	startTime = System.currentTimeMillis();
+    	//System.out.println("startStopWatch:     Start time is: " + startTime);
+    }
+    
+
+    public double elapsedTime(){
+    	//System.out.println("You are in the elapsedTime method");
+    	stopTime = System.currentTimeMillis();
+    	//System.out.println("elapsedTime:     End time is: " + stopTime);
+    	return (stopTime - startTime) / 1000.0;
+    }
+    
+    
+    private void compareArrays(){
+    	
+    	System.out.println("***** You are in the compareArrays method *****");
+    	
+    	for (int i = 0; i < simonArraySize; i++){
+    		System.out.print(simonArray[i]);
+    	}
+    	System.out.println(" ");
+    	for (int i = 0; i < simonArraySize; i++){
+    		System.out.print(userArray[i]);
+    	}
+
+    	System.out.println("\n");
+    	System.out.println("compareArray:      seqCounter is: " + seqCounter);
+    	System.out.println("");
+
+    	if (simonArray[n] == userArray[n]){
+    		System.out.println("compareArrays:     simonArray[" + n + "] MATCHES userArray[" + n + "]");
+    		arraysGood = true;
+    	} else {
+    		System.out.println("compareArrays:     simonArray[" + n + "] DOES NOT MATCH userArray[" + n + "]");
+    		arraysGood = false;
+    	}
+    	
+    	if (arraysGood){
+    		gameScore += 1;
+    		scoreTextField.setText(Integer.toString(gameScore));
+    	}
+    	
+       	// increment interation by 1
+    	n++;
+    	//seqCounter = 0;
+    	System.out.println("compareArray:     n after compare is: " + n);
+    	
+    	if (n == simonArraySize){
+    		System.out.println("compareArrays:     Game over.  Bring up the high scores.");
+    		checkScore();
+    	}
+    	
+    }
+    
+    // checks the score based on skill level to determine if the game is over or not.
+    //		Skill level easy			 8 to win the game
+    //		Skill level intermediate	20 to win the game
+    //		Skill level hard			31 to win the game
+    private void checkScore(){
+    	System.out.println("***** You are in the checkScore method *****");
+
+    		this.setVisible(false);
+    		highScore_Frame = new ScoreFrame();
+    		highScore_Frame.pack();
+    		highScore_Frame.setSize(500, 700);
+    		highScore_Frame.setLocationRelativeTo(null);
+    		highScore_Frame.setVisible(true);
+    		highScore_Frame.addScore("   ", gameScore);
+    	
+    }
+    
+    // Play the sound clip (if the sound is on) for each color
+    private void playClip(String buttonColor){
+    	//System.out.println("You are in the playClip method");
+    	try
+    	{
+    		//  Play blue button sound
+    		if (buttonColor == "blue")
+    		{
+    			AudioInputStream blueGameIn = AudioSystem.getAudioInputStream(blueFile);
+    			Clip blueClip = AudioSystem.getClip();
+    			blueClip.open(blueGameIn);
+    			blueClip.start();
+    		}
+    		// Play yellow button sound
+    		else if (buttonColor == "yellow")
+    		{
+        		AudioInputStream yellowGameIn = AudioSystem.getAudioInputStream(yellowFile);
+        		Clip yellowClip = AudioSystem.getClip();
+        		yellowClip.open(yellowGameIn);
+        		yellowClip.start();
+    		}
+    		// Play red button sound
+    		else if (buttonColor == "red")
+    		{
+           		AudioInputStream redGameIn = AudioSystem.getAudioInputStream(redFile);
+        		Clip redClip = AudioSystem.getClip();
+        		redClip.open(redGameIn);
+        		redClip.start();	
+    		}
+    		// Play green button sound
+    		else if (buttonColor == "green")
+    		{
+          		AudioInputStream greenGameIn = AudioSystem.getAudioInputStream(greenFile);
+        		Clip greenClip = AudioSystem.getClip();
+        		greenClip.open(greenGameIn);
+        		greenClip.start();	
+    		}
+     	}
+    	catch (UnsupportedAudioFileException e)
+    	{
+    		System.out.println("Unsupported Audio File.");
+    		e.printStackTrace();
+    	}
+    	catch (IOException e)
+    	{
+    		System.out.println("IO Exception opening audio clips");
+    		e.printStackTrace();
+    	}
+    	catch (LineUnavailableException e)
+    	{
+    		System.out.println("Line unavailable.");
+    		e.printStackTrace();
+    	}
+    }
+    
+    // Exit button actions
+    private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        System.exit(0);
+    }          
+    
+    //Wait 1 second
+    public void waitExec(long millisecs){
+    	System.out.println("***** You are in the waitExec method *****");
+    	try 
+    	{
+ 	       Thread.currentThread().sleep(millisecs);
+ 		}
+ 	    catch (InterruptedException e)
+ 		{
+ 	       e.printStackTrace();
+ 	    }
+    }
+    
+ // Open, read and close the settings file
+    public void readSequentialFile(){
+    	//System.out.println("You are in the readSequentialFile");
     	openFile();
     	readRecord();
     	closeFile();
     	
     }
     
+    // Open the settings file for the game
     public void openFile(){
-    	
+    	//System.out.println("You are in the openFile method");
     	try
     	{
     		input = new ObjectInputStream(Files.newInputStream(Paths.get("simonsettings.ser")));
@@ -264,8 +623,9 @@ public class SimonGamePanel extends JPanel{
     	}
     }
     
+    // Read the settings file
     public void readRecord(){
-    	
+    	//System.out.println("You are in the readRecord method");
     	try
     	{
     		while (true)
@@ -278,12 +638,12 @@ public class SimonGamePanel extends JPanel{
     			G = setting.getG();
     			B = setting.getB();
     			
-    			System.out.println("Settings in file are fileStatus: " + fileStatus +
-    					"difficulty: " + difficulty +
-    					"sound: " + sound +
-    					"R setting: " + R +
-    					"G setting: " + G +
-    					"B setting: " + B);
+    			//System.out.println("Settings in file are fileStatus: " + fileStatus +
+    			//		"\ndifficulty: " + difficulty +
+    			//		"\nsound: " + sound +
+    			//		"\nR setting: " + R +
+    			//		"\nG setting: " + G +
+    			//		"\nB setting: " + B);
     		}
     	}
     	catch (EOFException endOfFileException)
@@ -300,8 +660,9 @@ public class SimonGamePanel extends JPanel{
     	}
     }
     
+    // Close the settings file
     public void closeFile(){
-    	
+    	//System.out.println("You are in the closeFile method");
     	try
     	{
     		if (input != null)
@@ -313,160 +674,176 @@ public class SimonGamePanel extends JPanel{
     		System.exit(1);
     	}
     }
-   
-    // Score text field actions
-    private void scoreTextFieldActionPerformed(java.awt.event.ActionEvent evt) {
-    	//if(successfulTry){
-    	//	gameScore += 1;
-    	//	highScoreTextField.setText(Integer.toString(gameScore));
-    	//	
-    	//}
-    		
-    	if (greenButton.PRESSED_ICON_CHANGED_PROPERTY != null){
-    		gameScore += 1;
-    		highScoreTextField.setText(Integer.toString(gameScore));
-    	}
-    	
-    }                                              
-
-    // Green button actions
-    private void greenButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        System.out.println("You have pressed the green button");
-        greenButton.setPressedIcon(greenOn);
-        
-        try
-    	{
-    		AudioInputStream greenGameIn = AudioSystem.getAudioInputStream(greenFile);
-    		Clip greenClip = AudioSystem.getClip();
-    		greenClip.open(greenGameIn);
-    		greenClip.start();
-     	}
-    	catch (UnsupportedAudioFileException e)
-    	{
-    		System.out.println("Unsupported Audio File.");
-    		e.printStackTrace();
-    	}
-    	catch (IOException e)
-    	{
-    		System.out.println("IO Exception opening audio clips");
-    		e.printStackTrace();
-    	}
-    	catch (LineUnavailableException e)
-    	{
-    		System.out.println("Line unavailable.");
-    		e.printStackTrace();
-    	}
-        
-        gameScore += 1;
-        highScoreTextField.setText(Integer.toString(gameScore));
-        
-    }                                           
-
-    // Red button actions
-    private void redButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        System.out.println("You have pressed the red button");
-         redButton.setPressedIcon(redOn);
-         
-         try
-     	{
-        	//URL redGameSound = this.getClass().getClassLoader().getResource("redSound.wav");	
-     		AudioInputStream redGameIn = AudioSystem.getAudioInputStream(redFile);
-     		Clip redClip = AudioSystem.getClip();
-     		redClip.open(redGameIn);
-     		redClip.start();
-      	}
-     	catch (UnsupportedAudioFileException e)
-     	{
-     		System.out.println("Unsupported Audio File.");
-     		e.printStackTrace();
-     	}
-     	catch (IOException e)
-     	{
-     		System.out.println("IO Exception opening audio clips");
-     		e.printStackTrace();
-     	}
-     	catch (LineUnavailableException e)
-     	{
-     		System.out.println("Line unavailable.");
-     		e.printStackTrace();
-     	}
-
-    }                                         
-
-    // Yellow button actions
-    private void yellowButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        System.out.println("You have pressed the yellow button");
-        yellowButton.setPressedIcon(yellowOn);
-
-        try
-    	{
-    		AudioInputStream yellowGameIn = AudioSystem.getAudioInputStream(yellowFile);
-    		Clip yellowClip = AudioSystem.getClip();
-    		yellowClip.open(yellowGameIn);
-    		yellowClip.start();
-     	}
-    	catch (UnsupportedAudioFileException e)
-    	{
-    		System.out.println("Unsupported Audio File.");
-    		e.printStackTrace();
-    	}
-    	catch (IOException e)
-    	{
-    		System.out.println("IO Exception opening audio clips");
-    		e.printStackTrace();
-    	}
-    	catch (LineUnavailableException e)
-    	{
-    		System.out.println("Line unavailable.");
-    		e.printStackTrace();
-    	}
-
-    }                                            
-
-    // Blue button actions
-    private void blueButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        System.out.println("You have pressed the blue button");
-        blueButton.setPressedIcon(blueOn);
-        
-        try
-    	{
-    		AudioInputStream blueGameIn = AudioSystem.getAudioInputStream(blueFile);
-    		Clip blueClip = AudioSystem.getClip();
-    		blueClip.open(blueGameIn);
-    		blueClip.start();
-     	}
-    	catch (UnsupportedAudioFileException e)
-    	{
-    		System.out.println("Unsupported Audio File.");
-    		e.printStackTrace();
-    	}
-    	catch (IOException e)
-    	{
-    		System.out.println("IO Exception opening audio clips");
-    		e.printStackTrace();
-    	}
-    	catch (LineUnavailableException e)
-    	{
-    		System.out.println("Line unavailable.");
-    		e.printStackTrace();
-    	}
-    }                                          
-
-    // Exit button actions
-    private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        System.exit(0);
-    }                                          
-
+    
     // Variables declaration - do not modify                     
-    private javax.swing.JButton blueButton;
-    private javax.swing.JButton exitButton;
-    private javax.swing.JButton greenButton;
-    private java.awt.Label highScoreLabel;
-    private java.awt.TextField highScoreTextField;
-    private javax.swing.JButton redButton;
-    private java.awt.Label scoreLabel;
-    private java.awt.TextField scoreTextField;
-    private javax.swing.JLabel simonLabel;
-    private javax.swing.JButton yellowButton;
+    protected JButton blueButton;
+    private JButton exitButton;
+    private JButton goButton;
+    protected JButton greenButton;
+    private Label highScoreLabel;
+    private TextField highScoreTextField;
+    protected JButton redButton;
+    private Label scoreLabel;
+    private TextField scoreTextField;
+    private JLabel simonLabel;
+    protected JButton yellowButton;
     // End of variables declaration                   
+
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		// Green button actions
+	    //private void greenButtonActionPerformed(ActionEvent evt) {
+		if (e.getSource() == greenButton){
+	        System.out.println("***** You have pressed the green button *****");
+
+	        
+	        if (sound == 1){
+	        	playClip("green");
+	        }
+	        greenButton.setPressedIcon(greenOn);
+	        // Only add to the array if the iteration (sequential counter) is odd
+	        //System.out.println("THE seqCounter MOD FOR seqCounter%2 = " + seqCounter%2);
+	        //System.out.println("THE seqCounter itself is: " + seqCounter);
+	        if(seqCounter%2 != 0 && seqCounter > 0){
+	        	userArray[n] = 'G';
+	        	//compareArrays();
+	        	//waitExec(1000);
+	        	//startStopWatch();
+	        	//userPlay();
+	        	//getUserInput(n);
+			}
+	        
+	        System.out.println("greenButton:                             n = " + n);
+	        System.out.println("greenButton:     seqCounter before if stmt = " + seqCounter);
+	        if (seqCounter == n + (n + 1)){
+	        	seqCounter = 0;
+	        	compareArrays();
+	        	waitExec(1000);
+	        	startStopWatch();
+	        	userPlay();
+	        }
+	        
+        	System.out.println("greenButton:     The userArray[" + n + "] is now: " + userArray[n]);
+        	
+        	seqCounter++;
+        	System.out.println("greenButton:     seqCounter after increment is: " + seqCounter);
+	    }
+	    
+
+	    // Red button actions
+		//private void redButtonActionPerformed(ActionEvent evt) {
+		if (e.getSource() == redButton){
+	        System.out.println("***** You have pressed the red button *****");
+	         
+	         if (sound == 1){
+	        	 playClip("red");
+	         }
+	         redButton.setPressedIcon(redOn);
+	        // Only add to the array if the iteration (sequential counter) is odd
+	        //System.out.println("THE seqCounter MOD FOR seqCounter%2 = " + seqCounter%2);
+	        //System.out.println("THE seqCounter itself is: " + seqCounter);
+	        if(seqCounter%2 != 0 && seqCounter > 0){
+	        	userArray[n] = 'R';
+	        	//compareArrays();
+	        	//waitExec(1000);
+	        	//startStopWatch();
+	        	//userPlay();
+	        	//getUserInput(n);
+	        }
+	        
+	        System.out.println("redButton:                             n = " + n);
+	        System.out.println("redButton:     seqCounter before if stmt = " + seqCounter);
+	        if (seqCounter == n + (n + 1)){
+	        	seqCounter = 0;
+	        	compareArrays();
+	        	waitExec(1000);
+	        	startStopWatch();
+	        	userPlay();
+	        }
+	        System.out.println("redButton:     The userArray[" + n + "] is now: " + userArray[n]);
+	        	 
+	        seqCounter++;
+        	System.out.println("redButton:     seqCounter is: " + seqCounter);
+
+	    }                                         
+
+	    // Yellow button actions
+		//private void yellowButtonActionPerformed(ActionEvent evt) {
+		if (e.getSource() == yellowButton){
+	        System.out.println("***** You have pressed the yellow button *****");
+	        
+	        
+	        if (sound == 1){
+	        	playClip("yellow");
+	        }
+	        yellowButton.setPressedIcon(yellowOn);
+	        // Only add to the array if the iteration (sequential counter) is odd
+	        //System.out.println("THE seqCounter MOD FOR seqCounter%2 = " + seqCounter%2);
+	        //System.out.println("THE seqCounter itself is: " + seqCounter);
+	        if(seqCounter%2 != 0 && seqCounter > 0){
+	        	userArray[n] = 'Y';
+	        	//compareArrays();
+	        	//waitExec(1000);
+	        	//startStopWatch();
+	        	//userPlay();
+	        	//getUserInput(n);
+	        }
+
+	        System.out.println("yellowButton:                             n = " + n);
+	        System.out.println("yellowButton:     seqCounter before if stmt = " + seqCounter);
+	        if (seqCounter == n + (n + 1)){
+	        	seqCounter = 0;
+	        	compareArrays();
+	        	waitExec(1000);
+	        	startStopWatch();
+	        	userPlay();
+	        }
+        	System.out.println("yellowButton:     The userArray[" + n + "] is now: " + userArray[n]);
+        	
+        	seqCounter++;
+        	System.out.println("yellowButton:     seqCounter is: " + seqCounter);
+
+	    }                                            
+
+	    // Blue button actions
+		//private void blueButtonActionPerformed(ActionEvent evt) {
+		if (e.getSource() == blueButton){
+	        System.out.println("***** You have pressed the blue button *****");
+	        
+	        
+	        if (sound == 1){
+	        	playClip("blue");
+	        }
+	        blueButton.setPressedIcon(blueOn);
+	        // Only add to the array if the iteration (sequential counter) is odd
+	        //System.out.println("THE seqCounter MOD FOR seqCounter%2 = " + seqCounter%2);
+	        //System.out.println("THE seqCounter itself is: " + seqCounter);
+	        if(seqCounter%2 != 0 && seqCounter > 0){
+	        	userArray[n] = 'B';
+	        	//compareArrays();
+	        	//waitExec(1000);
+	        	//startStopWatch();
+	        	//userPlay();
+	        	//getUserInput(n);
+	        }
+	        
+	        System.out.println("blueButton:                             n = " + n);
+	        System.out.println("blueButton:     seqCounter before if stmt = " + seqCounter);
+	        if (seqCounter == n + (n + 1)){
+	        	seqCounter = 0;
+	        	compareArrays();
+	        	waitExec(1000);
+	        	startStopWatch();
+	        	userPlay();
+	        }
+	        
+        	System.out.println("blueButton:     The userArray[" + n + "] is now: " + userArray[n]);
+        	
+        	seqCounter++;
+        	System.out.println("blueButton:     seqCounter is: " + seqCounter);
+
+	    }                                          
+	}
 }

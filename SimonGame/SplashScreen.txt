@@ -1,0 +1,42 @@
+package com.GutierrezLeo.CSC18B.SimonGame;
+
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Toolkit;
+
+import javax.swing.ImageIcon;
+import javax.swing.JWindow;
+
+public class SplashScreen extends JWindow{
+
+	//Get image that will be used as the splash screen image.
+	Image splashImage = Toolkit.getDefaultToolkit().getImage("SimonSplash.gif");
+	
+	ImageIcon splash = new ImageIcon(splashImage);
+	
+	//Splash screen constructor
+	public SplashScreen(){
+		
+		System.out.println("You are in the splash screen constructor");
+		
+		try
+		{
+			setSize(splash.getIconWidth(),splash.getIconHeight());
+			setLocationRelativeTo(null);
+			setVisible(true);
+			Thread.sleep(7000);;
+			dispose();
+		}
+		catch (Exception e)
+		{
+			System.err.println("Exception in loading splash");
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void paint(Graphics g){
+		g.drawImage(splashImage,0,0,this);
+		//g.drawImage(splashImage,0,0,this);
+	}
+}
