@@ -289,11 +289,11 @@ public class ScoreFrame extends JFrame implements ActionListener{
 		buttonPanel = new JPanel();
 		
 		// Define the 2 buttons
-		playButton = new JButton("Play Again");
+		//////playButton = new JButton("Play Again");
 		exitButton = new JButton("Exit");
 		
 		// Add the 2 buttons to the button panel
-		buttonPanel.add(playButton);
+		//////buttonPanel.add(playButton);
 		buttonPanel.add(exitButton);
 		
 		// Set the background color to black 
@@ -303,7 +303,7 @@ public class ScoreFrame extends JFrame implements ActionListener{
 		this.add(buttonPanel);
 		
 		// Define the actions listeners for the 2 buttons
-		playButton.addActionListener(this);
+		////playButton.addActionListener(this);
 		exitButton.addActionListener(this);
 		
 	}
@@ -544,21 +544,12 @@ public class ScoreFrame extends JFrame implements ActionListener{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == playButton){
-			this.setVisible(false);
-    		simonWelcome = new SimonWelcome();
-    		simonWelcome.pack();
-    		//Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    		//int height = screenSize.height;
-    		//int width = screenSize.width;
-    		////highScore_Frame.setSize(width/2, height/2);
-    		//highScore_Frame.setSize(500, 700);
-    		//highScore_Frame.setLocationRelativeTo(null);
-    		simonWelcome.setVisible(true);
-    		//highScore_Frame.addScore("   ", gameScore);
-			
-			//System.out.println("You have clicked the Play Button");
-		}
+		////if(e.getSource() == playButton){
+		////	this.setVisible(false);
+    	////	simonWelcome = new SimonWelcome();
+    	////	simonWelcome.pack();
+    	////	simonWelcome.setVisible(true);
+		////}
 		
 		// Exit the game
 		if(e.getSource() == exitButton){

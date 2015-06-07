@@ -1,5 +1,6 @@
 package com.GutierrezLeo.CSC18B.SimonGame;
 
+import java.awt.Button;
 import java.awt.Color;
 import java.awt.Label;
 import java.awt.TextField;
@@ -47,6 +48,8 @@ public class SimonGamePanel extends JPanel implements ActionListener{
 	private int B;
 	private int simonArraySize;
 	private int n = 0;
+	private int j = 0;
+	private int myClick = 0;
 	private int gameScore = 0;
 	private int seqCounter = -1;
 	
@@ -58,6 +61,8 @@ public class SimonGamePanel extends JPanel implements ActionListener{
 	private double timeToPress;
 
 	private boolean arraysGood = true;
+	private boolean onTime = true;
+	private boolean finishedLevel = false;
 	
 	private File loseFile = new File("loseGame.wav");
 	private File redFile = new File("redSound.wav");
@@ -65,27 +70,25 @@ public class SimonGamePanel extends JPanel implements ActionListener{
 	private File yellowFile = new File("yellowSound.wav");
 	private File blueFile = new File("blueSound.wav");
 	
-	private ImageIcon blueOff = new ImageIcon(getClass().getResource("blue_arch_OFF.fw.png"));
-	protected ImageIcon blueOn = new ImageIcon(getClass().getResource("blue_arch_ON.fw.png"));
-	private ImageIcon blueRollover = new ImageIcon(getClass().getResource("blue_arch_ON.fw.png"));
+	private final ImageIcon blueOff = new ImageIcon(getClass().getResource("blue_arch_OFF.fw.png"));
+	private final ImageIcon blueOn = new ImageIcon(getClass().getResource("blue_arch_ON.fw.png"));
 
 	private ImageIcon redOff = new ImageIcon(getClass().getResource("red_arch_OFF.fw.png"));
-	protected ImageIcon redOn = new ImageIcon(getClass().getResource("red_arch_ON.fw.png"));
-	private ImageIcon redRollover = new ImageIcon(getClass().getResource("red_arch_ON.fw.png"));
+	private ImageIcon redOn = new ImageIcon(getClass().getResource("red_arch_ON.fw.png"));
 	
 	private ImageIcon greenOff = new ImageIcon(getClass().getResource("green_arch_OFF.fw.png"));
-	protected ImageIcon greenOn = new ImageIcon(getClass().getResource("green_arch_ON.fw.png"));
-	private ImageIcon greenRollover = new ImageIcon(getClass().getResource("green_arch_ON.fw.png"));
+	private ImageIcon greenOn = new ImageIcon(getClass().getResource("green_arch_ON.fw.png"));
 
 	private ImageIcon yellowOff = new ImageIcon(getClass().getResource("yellow_arch_OFF.fw.png"));
-	protected ImageIcon yellowOn = new ImageIcon(getClass().getResource("yellow_arch_ON.fw.png"));
-	private ImageIcon yellowRollover = new ImageIcon(getClass().getResource("yellow_arch_ON.fw.png"));
+	private ImageIcon yellowOn = new ImageIcon(getClass().getResource("yellow_arch_ON.fw.png"));
 
 	private ScoreFrame highScore_Frame;
-
+	public SimonWelcome sw = new SimonWelcome();
+	
+	//private Thread t;
 	
     public SimonGamePanel(){
-        
+        System.out.println("The current thread is: " + Thread.currentThread().getName());
     	readSequentialFile();
     	color = new Color(R, G, B);
 
@@ -116,6 +119,8 @@ public class SimonGamePanel extends JPanel implements ActionListener{
         simonLabel = new JLabel();
         goButton = new JButton();
 
+        //t = new Thread();
+        
         // Set max and preferred panel size
         setMaximumSize(new java.awt.Dimension(600, 600));
         setPreferredSize(new java.awt.Dimension(600, 600));
@@ -133,18 +138,18 @@ public class SimonGamePanel extends JPanel implements ActionListener{
         // Score Text Field details
         scoreTextField.setBackground(color);
         scoreTextField.setEditable(false);
-        scoreTextField.setForeground(new java.awt.Color(255, 255, 255));
+        scoreTextField.setForeground(new Color(255, 255, 255));
         scoreTextField.setText("00");
-        scoreTextField.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                scoreTextFieldActionPerformed(evt);
-            }
-        });
+        //scoreTextField.addActionListener(new ActionListener() {
+        //    public void actionPerformed(ActionEvent evt) {
+        //        scoreTextFieldActionPerformed(evt);
+        //    }
+        //});
 
         // High Score Text Field
         highScoreTextField.setBackground(color);
         highScoreTextField.setEditable(false);
-        highScoreTextField.setForeground(new java.awt.Color(255, 255, 255));
+        highScoreTextField.setForeground(new Color(255, 255, 255));
         highScoreTextField.setName(""); // NOI18N
         highScoreTextField.setText("00");
 
@@ -155,27 +160,31 @@ public class SimonGamePanel extends JPanel implements ActionListener{
         highScoreLabel.setText("High Score");
 
         // Green button details
-        greenButton.setIcon(greenOff);
         greenButton.setBackground(color);
-        greenButton.setRolloverIcon(greenRollover);
+        greenButton.setIcon(greenOff);
+        greenButton.setPressedIcon(greenOn);
+        greenButton.setEnabled(false);
         greenButton.addActionListener(this);
 
         // Red button details
-        redButton.setIcon(redOff);
         redButton.setBackground(color);
-        redButton.setRolloverIcon(redRollover);
+        redButton.setIcon(redOff);
+        redButton.setPressedIcon(redOn);
+        redButton.setEnabled(false);
         redButton.addActionListener(this);
 
         // Blue button details
-        blueButton.setIcon(blueOff);
         blueButton.setBackground(color);
-        blueButton.setRolloverIcon(blueRollover);
+        blueButton.setIcon(blueOff);
+        blueButton.setPressedIcon(blueOn);
+        blueButton.setEnabled(false);
         blueButton.addActionListener(this);
 
         // Yellow button details
-        yellowButton.setIcon(yellowOff);
         yellowButton.setBackground(color);
-        yellowButton.setRolloverIcon(yellowRollover);
+        yellowButton.setIcon(yellowOff);
+        yellowButton.setPressedIcon(yellowOn);
+        yellowButton.setEnabled(false);
         yellowButton.addActionListener(this);
 
         // Simon label details
@@ -261,6 +270,7 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     }// </editor-fold>//GEN-END:initComponents
     
     public void gameSetUp(){
+    	System.out.println("gameSetUp:  The current Thread is: " + Thread.currentThread().getName());
     	fillSimonArray();
     	
     }
@@ -279,7 +289,7 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     	
     	switch(difficulty)
     	{
-    	case 1:	simonArraySize = 4;
+    	case 1:	simonArraySize = 8;
     			break;
     	case 2: simonArraySize = 20;
     			break;
@@ -309,13 +319,14 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     	// ***************************************************************************
     	//   O V E R R I D E   T H E   A B O V E   A R R A Y   W I T H   S T A T I C 
     	//   A R R A Y   V A L U E S   F O R   T E S T I N G
+    	//               R E M O V E   W H E N   D O N E
     	// ***************************************************************************
     	// ***************************************************************************
     	
-    	simonArray[0] = 'R';
-    	simonArray[1] = 'B';
-    	simonArray[2] = 'Y';
-    	simonArray[3] = 'Y';
+    	//simonArray[0] = 'R';
+    	//simonArray[1] = 'B';
+    	//simonArray[2] = 'Y';
+    	//simonArray[3] = 'Y';
     	
     	
     	//  Initialize the user array (cannot be nulls)
@@ -323,8 +334,10 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     	
     }
     
-    // Initialize the user array the all 'A'.  Replace each as the game continues.
+    // Initialize the user array to all 'A's.  Replace each as the game continues.
     public void initializeUserArray(){
+    	System.out.println("***** You are in initializeUserArray *****");
+    	System.out.println("The current Thread is: " + Thread.currentThread().getName());
     	userArray = new char [simonArraySize];
     	
     	for (int count = 0; count < simonArraySize; count++){
@@ -339,66 +352,81 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     	return random;
     }
     
-   
-    // Score text field actions
-    private void scoreTextFieldActionPerformed(ActionEvent evt) {
-    	//System.out.println("***** You are in the scoreTextFieldActionPreformed method *****");
-    	
-    }                                              
-
-    
     // GO button to start the game play
     private void goButtonActionPerformed(ActionEvent evt) {
-    	
-    	// Wait 1 second
-    	waitExec(1000);
+    	System.out.println("***** You have pressed the GO button");
+    	System.out.println("The current thread is: " + Thread.currentThread().getName());
+    	//new Thread(new Runnable(){
+    		//public void run(){
+    			greenButton.setEnabled(true);
+    	    	redButton.setEnabled(true);
+    	    	yellowButton.setEnabled(true);
+    	    	blueButton.setEnabled(true);
+    	    	//waitExec(1000);
+    		//}
+    	//}).start();
     	
     	// Set the clock to zero for the first input
     	startStopWatch();
     	
-    	userPlay();
+   		userPlay();
     }
-
+    
     
  // The game starts here
     private void userPlay(){
     	System.out.println("***** You are in the userPlay method *****");
-    	int j = n + 1;
+    	System.out.println("The current thread is: " + Thread.currentThread().getName());
+    	myClick = 0;
+    	initializeUserArray();
+
+    	if ((n != simonArraySize) || (arraysGood) || (onTime)){
+    		j = n + 1;
+    	}
 
     	// show user the simon array
     	System.out.println("userPlay:     j is: " + j);
-    	for (int i = 0; i < j; i++){
-    		System.out.println("userPlay:     ++++++for loop i is: " + i + " and j is " + j + "++++++");
-    		playSimonArray(i);
+    			
+    	if ((n == simonArraySize) || (!arraysGood) || (!onTime)){
+    		System.out.println("Do not play the next iteration.  Bring up the score panel");
+    	} else {
+    		System.out.println("The current thread is: " + Thread.currentThread().getName());
+    		new Thread(new Runnable(){
+    			public void run(){
+    				System.out.println("*+*+*+*+*+*+*+*+*+*+   IN THE THREAD   +*+*+*+*+*+*+*+*+*+*+");
+    				for (int i = 0; i < j; i++){
+    					System.out.println("userPlay:     ++++++for loop i is: " + i + " and j is " + j + "++++++");
+    					playSimonArray(i);
+    				}
+    			}
+    		}).start();
     	}
-    	
-    	checkTime();
     }
     
     private void playSimonArray(int i){
-    	
     	System.out.println("***** You are in the playSimonArray method *****");
+    	System.out.println("The current thread is: " + Thread.currentThread().getName());
     	System.out.println("playSimonArray:    n in the playSimonArray is: " + n);
     	System.out.println("playSimonArray:    the simonArray[" + i + "] value before FAKE click is: " + simonArray[i]);
     	
     	if(simonArray[i] == 'G'){
-    		greenButton.doClick();
+    		greenButton.doClick(500);
     		waitExec(500);
     	}
     	
     	if(simonArray[i] == 'R'){
-    		redButton.doClick();
+    		redButton.doClick(500);
     		waitExec(500);
-     	}
+    	}
     	
     	if(simonArray[i] == 'Y'){
-    		yellowButton.doClick();
+    		yellowButton.doClick(500);
     		waitExec(500);
      	}
     	
     	if(simonArray[i] == 'B'){
-     		blueButton.doClick();
-    		waitExec(500);
+     		blueButton.doClick(500);
+     		waitExec(500);
      	}
     }
     
@@ -411,21 +439,25 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     private void verifyTimeToPress(){
         timeToPress = elapsedTime();
 
-        //if(timeToPress > 5){
-        	//System.out.println("verifyTimeToPress:     Too much time");
-        //}
+        if(timeToPress > 5){
+        	System.out.println("verifyTimeToPress:     Too much time");
+        	onTime = false;
+        } else {
+        	onTime = true;
+        }
         
-        startStopWatch();
+        if (onTime)
+        	startStopWatch();
     }
-    
     
     //Start the stop watch
     public void startStopWatch(){
+    	System.out.println("***** You are in the startStopWatch method");
     	startTime = System.currentTimeMillis();
     }
     
-
     public double elapsedTime(){
+    	System.out.println("***** You are in the elapsedTime method");
     	stopTime = System.currentTimeMillis();
     	return (stopTime - startTime) / 1000.0;
     }
@@ -434,6 +466,7 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     private void compareArrays(){
     	
     	System.out.println("***** You are in the compareArrays method *****");
+    	System.out.println("The current Thread is: " + Thread.currentThread().getName());
     	
     	for (int i = 0; i < simonArraySize; i++){
     		System.out.print(simonArray[i]);
@@ -458,18 +491,52 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     	if (arraysGood){
     		gameScore += 1;
     		scoreTextField.setText(Integer.toString(gameScore));
+    	} else {
+    		if (sound == 1)
+    		{
+    			System.out.println("compareArrays:     Game over. Arrays didn't match");
+    			playClip("lost");
+    		}
+    		checkScore();
     	}
     	
        	// increment interation by 1
     	n++;
-    	//seqCounter = 0;
-    	System.out.println("compareArray:     n after compare is: " + n);
     	
     	if (n == simonArraySize){
     		System.out.println("compareArrays:     Game over.  Bring up the high scores.");
     		checkScore();
     	}
+    }
+    
+    private void doOneCompare(int a){
     	
+    	System.out.println("***** DO ONE COMPARE *****");
+    	System.out.println("The current thread is: " + Thread.currentThread().getName());
+    	for (int i = 0; i < simonArraySize; i++){
+    		System.out.print(simonArray[i]);
+    	}
+    	System.out.println(" ");
+    	for (int i = 0; i < simonArraySize; i++){
+    		System.out.print(userArray[i]);
+    	}
+    	System.out.println("");
+    	System.out.println("simonArray[" + a + "] is: " + simonArray[a]);
+    	System.out.println(" userArray[" + a + "] is: " + userArray[a]);
+
+    	
+    	if (simonArray[a] == userArray[a]){
+    		arraysGood = true;
+    	} else {
+    		arraysGood = false;
+    	}
+    	
+    	if (!arraysGood){
+    		if (sound == 1){
+    			playClip("lost");
+    		}
+    	checkScore();
+    	}
     }
     
 
@@ -477,7 +544,10 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     //  than the lowest score.  Otherwise, just display the top 10 scores.
     private void checkScore(){
     	System.out.println("***** You are in the checkScore method *****");
-
+    	System.out.println("The current thread is " + Thread.currentThread().getName());
+    		///this.removeAll();
+    		//sw.setVisible(false);
+    		//sw.dispose();
     		this.setVisible(false);
     		this.setEnabled(false);
     		highScore_Frame = new ScoreFrame();
@@ -515,8 +585,8 @@ public class SimonGamePanel extends JPanel implements ActionListener{
            		AudioInputStream redGameIn = AudioSystem.getAudioInputStream(redFile);
         		Clip redClip = AudioSystem.getClip();
         		redClip.open(redGameIn);
-        		redClip.start();	
-    		}
+        		redClip.start(); 
+    		}	
     		// Play green button sound
     		else if (buttonColor == "green")
     		{
@@ -524,6 +594,14 @@ public class SimonGamePanel extends JPanel implements ActionListener{
         		Clip greenClip = AudioSystem.getClip();
         		greenClip.open(greenGameIn);
         		greenClip.start();	
+    		} 
+    		// Play the game lost sound
+    		else if (buttonColor == "lost")
+    		{
+    			AudioInputStream lostGameIn = AudioSystem.getAudioInputStream(loseFile);
+        		Clip lostClip = AudioSystem.getClip();
+        		lostClip.open(lostGameIn);
+        		lostClip.start();
     		}
      	}
     	catch (UnsupportedAudioFileException e)
@@ -551,6 +629,7 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     // Wait the milliseconds as defined by the calling of the method in the millisecs variable
     public void waitExec(long millisecs){
     	System.out.println("***** You are in the waitExec method *****");
+    	System.out.println("The current thread is: " + Thread.currentThread().getName());
     	try 
     	{
  	       Thread.currentThread().sleep(millisecs);
@@ -626,132 +705,236 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     	}
     }
     
-    // Variables declaration - do not modify                     
-    protected JButton blueButton;
+    // Variables declaration - do not modify
     private JButton exitButton;
     private JButton goButton;
-    protected JButton greenButton;
     private Label highScoreLabel;
     private TextField highScoreTextField;
-    protected JButton redButton;
     private Label scoreLabel;
     private TextField scoreTextField;
     private JLabel simonLabel;
-    protected JButton yellowButton;
+    private JButton greenButton;
+    private JButton redButton;
+    private JButton yellowButton;
+    private JButton blueButton;
     // End of variables declaration                   
 
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// Green button actions
-	    //private void greenButtonActionPerformed(ActionEvent evt) {
 		if (e.getSource() == greenButton){
 	        System.out.println("***** You have pressed the green button *****");
-
+	        System.out.println("The current thread is: " + Thread.currentThread().getName());
+	        //new Thread(new Runnable(){
+	        	//public void run(){
+	        
 	        seqCounter++;
         	System.out.println("greenButton:     seqCounter after increment is: " + seqCounter);
 	        
-	        if (sound == 1){
-	        	playClip("green");
-	        }
-	        greenButton.setPressedIcon(greenOn);
-	        
-	        System.out.println("greenButton:                             n = " + n);
-	        System.out.println("greenButton:     seqCounter before if stmt = " + seqCounter);
-	        if (seqCounter == n + (n + 1)){
-	        	userArray[n] = 'G';
-	        	seqCounter = -1;
-	        	compareArrays();
-	        	waitExec(1000);
-	        	startStopWatch();
-	        	userPlay();
-	        }
-	        
-        	System.out.println("greenButton:     The userArray[" + n + "] is now: " + userArray[n]);
+        	userArray[myClick] = 'G';
+        	
+        	checkTime();
+        	
+        	if (onTime){
+        		if (sound == 1){
+        			playClip("green");
+        		}
+        		
+        		if (n > 0){
+        			System.out.println("n is greater than 0: " + n);
+        			if ((seqCounter > n) && (seqCounter != n + (n + 1))){
+        				System.out.println("seqcounter is greater than n: " + seqCounter);
+        				doOneCompare(myClick);
+        				myClick++;
+        			}
+        		}
+        		
+        		System.out.println("greenButton:                             n = " + n);
+        		System.out.println("greenButton:     seqCounter before if stmt = " + seqCounter);
+        		if (seqCounter == n + (n + 1)){
+        			//userArray[n] = 'G';
+        			seqCounter = -1;
+        			compareArrays();
+        			startStopWatch();
+        			userPlay();
+        		}
+        	} else {
+           		if (sound == 1){
+        			System.out.println("greenButton:     Game over. Took too much time");
+        			playClip("lost");
+        		}
+        		checkScore();
+        	}
+        	
+        	
+				//}
+    		//}).start();
+
         	
 	    }
 	    
 
 	    // Red button actions
-		//private void redButtonActionPerformed(ActionEvent evt) {
 		if (e.getSource() == redButton){
 	        System.out.println("***** You have pressed the red button *****");
-	         
+	        System.out.println("The current thread is: " + Thread.currentThread().getName());
+	        //new Thread(new Runnable(){
+	        	//public void run(){
+	        
 	        seqCounter++;
-        	System.out.println("greenButton:     seqCounter after increment is: " + seqCounter);
+        	System.out.println("redButton:     seqCounter after increment is: " + seqCounter);
 	        
-	         if (sound == 1){
-	        	 playClip("red");
-	         }
-	         redButton.setPressedIcon(redOn);
-	        
-	        System.out.println("redButton:                             n = " + n);
-	        System.out.println("redButton:     seqCounter before if stmt = " + seqCounter);
-	        if (seqCounter == n + (n + 1)){
-	        	userArray[n] = 'R';
-	        	seqCounter = -1;
-	        	compareArrays();
-	        	waitExec(1000);
-	        	startStopWatch();
-	        	userPlay();
-	        }
-	        System.out.println("redButton:     The userArray[" + n + "] is now: " + userArray[n]);
-	        	 
-	    }                                         
+        	userArray[myClick] = 'R';
+        	
+        	checkTime();
+        	
+        	if (onTime){
+        		if (sound == 1){
+        			playClip("red");
+        		}
+        		
+        		if (n > 0){
+        			System.out.println("n is greater than 0: " + n);
+        			if ((seqCounter > n) && (seqCounter != n + (n + 1))){
+    					System.out.println("seqcounter is greater than n: " + seqCounter);
+    					doOneCompare(myClick);
+    					myClick++;
+        			}
+        		}
+        		
+        		System.out.println("redButton:                             n = " + n);
+        		System.out.println("redButton:     seqCounter before if stmt = " + seqCounter);
+        		if (seqCounter == n + (n + 1)){
+        			//userArray[n] = 'R';
+        			seqCounter = -1;
+        			compareArrays();
+        			startStopWatch();
+        			userPlay();
+        		}
+        	} else {
+        		if (sound == 1){
+        			System.out.println("redButton:     Game over. Took too much time");
+        			playClip("lost");
+        		}
+        		checkScore();
+        	}
+        	
+				//}
+    		//}).start();
 
+	    } 
+	    
+	    
 	    // Yellow button actions
-		//private void yellowButtonActionPerformed(ActionEvent evt) {
 		if (e.getSource() == yellowButton){
 	        System.out.println("***** You have pressed the yellow button *****");
+	        System.out.println("The current thread is: " + Thread.currentThread().getName());
+
+	        //new Thread(new Runnable(){
+	        	//public void run(){
 	        
 	        seqCounter++;
-        	System.out.println("greenButton:     seqCounter after increment is: " + seqCounter);
+        	System.out.println("yellowButton:     seqCounter after increment is: " + seqCounter);
 	        
-	        if (sound == 1){
-	        	playClip("yellow");
-	        }
-	        yellowButton.setPressedIcon(yellowOn);
-
-	        System.out.println("yellowButton:                             n = " + n);
-	        System.out.println("yellowButton:     seqCounter before if stmt = " + seqCounter);
-	        if (seqCounter == n + (n + 1)){
-	        	userArray[n] = 'Y';
-	        	seqCounter = -1;
-	        	compareArrays();
-	        	waitExec(1000);
-	        	startStopWatch();
-	        	userPlay();
-	        }
-        	System.out.println("yellowButton:     The userArray[" + n + "] is now: " + userArray[n]);
+        	userArray[myClick] = 'Y';
         	
+        	checkTime();
+        	
+        	if (onTime){
+        		if (sound == 1){
+        			playClip("yellow");
+        		}
+        		
+        		if (n > 0){
+        			System.out.println("n is greater than 0: " + n);
+        			if ((seqCounter > n) && (seqCounter != n + (n + 1))){
+        				System.out.println("seqcounter is greater than n: " + seqCounter);
+        				doOneCompare(myClick);
+        				myClick++;
+        			}
+        		}
+        		
+        		System.out.println("yellowButton:                             n = " + n);
+        		System.out.println("yellowButton:     seqCounter before if stmt = " + seqCounter);
+        		if (seqCounter == n + (n + 1)){
+        			//userArray[n] = 'Y';
+        			seqCounter = -1;
+        			compareArrays();
+        			startStopWatch();
+        			userPlay();
+        		}
+        	} else {
+        		if (sound == 1){
+        			System.out.println("yellowButton:     Game over. Took too much time");
+        			playClip("lost");
+        		}
+        		checkScore();
+        	}
+        	
+    			//}
+			//}).start();
+
 	    }                                            
 
 	    // Blue button actions
-		//private void blueButtonActionPerformed(ActionEvent evt) {
 		if (e.getSource() == blueButton){
 	        System.out.println("***** You have pressed the blue button *****");
+	        System.out.println("The current thread is: " + Thread.currentThread().getName());
+
+	        //new Thread(new Runnable(){
+	        	//public void run(){
+	        		
+	        
 	        
 	        seqCounter++;
-        	System.out.println("greenButton:     seqCounter after increment is: " + seqCounter);
+        	System.out.println("blueButton:     seqCounter after increment is: " + seqCounter);
 	        
-	        if (sound == 1){
-	        	playClip("blue");
-	        }
-	        blueButton.setPressedIcon(blueOn);
-	        
-	        System.out.println("blueButton:                             n = " + n);
-	        System.out.println("blueButton:     seqCounter before if stmt = " + seqCounter);
-	        if (seqCounter == n + (n + 1)){
-	        	userArray[n] = 'B';
-	        	seqCounter = -1;
-	        	compareArrays();
-	        	waitExec(1000);
-	        	startStopWatch();
-	        	userPlay();
-	        }
-	        
-        	System.out.println("blueButton:     The userArray[" + n + "] is now: " + userArray[n]);
+        	checkTime();
         	
+        	userArray[myClick] = 'B';
+        	
+        	if (onTime){
+        		if (sound == 1){
+        			playClip("blue");
+        		}
+        		
+        		if (n > 0){
+        			System.out.println("n is greater than 0: " + n);
+        			if ((seqCounter > n) && (seqCounter != n + (n + 1))){
+        				System.out.println("seqcounter is greater than n: " + seqCounter);
+        				doOneCompare(myClick);
+        				myClick++;
+        			}
+        		}
+        		
+        		System.out.println("blueButton:                             n = " + n);
+        		System.out.println("blueButton:     seqCounter before if stmt = " + seqCounter);
+        		if (seqCounter == n + (n + 1)){
+        			//userArray[n] = 'B';
+        			seqCounter = -1;
+        			compareArrays();
+        			startStopWatch();
+        			userPlay();
+        		}
+        	} else {
+        		if (sound == 1){
+        			System.out.println("blueButton:     Game over. Took too much time");
+        			playClip("lost");
+        		}
+        		checkScore();
+        	}
+        	
+	        	//}
+	        //}).start();
+
 	    }                                          
 	}
+	
+	//public void run(){
+	//	
+	//	System.out.println("You are in the run method");
+	//	playSimonArray(i);
+	//	
+	//}
 }
