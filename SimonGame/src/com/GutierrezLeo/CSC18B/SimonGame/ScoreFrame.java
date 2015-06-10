@@ -8,6 +8,11 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -19,15 +24,21 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
+import java.util.Calendar;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
+import java.util.Scanner;
 
 public class ScoreFrame extends JFrame implements ActionListener{
 
@@ -40,8 +51,8 @@ public class ScoreFrame extends JFrame implements ActionListener{
 	private JPanel panel1, panel2, panel3, panel4, panel5,
 				   panel6, panel7, panel8, panel9, panel10, headPanel, buttonPanel;
 	private JMenuBar menuBar;
-	private JMenu helpMenu, aboutMenu;
-	private JMenuItem instructionMenuItem, authorsMenuItem;
+	private JMenu helpMenu, aboutMenu, playerMenu;
+	private JMenuItem instructionMenuItem, authorsMenuItem, historyMenuItem;
 	private JButton exitButton, playButton;
 	
 	// Define array for the scores
@@ -51,13 +62,29 @@ public class ScoreFrame extends JFrame implements ActionListener{
 	private static final String ScoreFile = "scores.dat";
 	
 	// Define program variables
+	private int currentLevel;
+	private int myScore;
 	private String holdInitial;
 	private int holdScore;
 	private int k;
 	private int lowScore;
 	private int highScore;
+	private int currentUserId;
+	private int result = 0;
+	
+	private PreparedStatement insertNewHistoryRec;
+	private PreparedStatement insertNewHistoryXref;
+	private int gameId;
+	private int gameLevel;
+	private int gameScore;
+	private int gameUser;
+	
+	// the select statement to get the latest entry in a mysql table (for my history file
+	// is:  SELECT game_id FROM entity_history_Simon ORDER BY game_id DESC LIMIT 0,1
 
 	private SimonWelcome simonWelcome;
+	private GameHistoryFrame ghf;
+	//private RegisterPanel rp;
 	
 	// Define input / output streams
 	FileInputStream fileInput = null;
@@ -69,13 +96,19 @@ public class ScoreFrame extends JFrame implements ActionListener{
 	public ScoreFrame(){
 		
 		super("HIGH SCORES");
-		
+
 		// Get and load scores into the score array
 		getScores();
 		getHighScores();
 		
+		// Get the current user/player of the game
+		try {
+			readCurrentUser();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
 		// Set up the score panel layouts
-		//this.setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		this.setLayout(new GridLayout(12,2));
 		
 		this.getContentPane().setBackground(Color.black);
@@ -85,6 +118,11 @@ public class ScoreFrame extends JFrame implements ActionListener{
 		loadHeader();
 		loadPanels();
 		loadButtonPanel();
+		
+		//updateTheDatabase();
+		
+		
+		//System.out.println("The current player/user is player number: " + rp.getCurrentUserId());
 	}
 	
 	// Load header method to load the Bold Header
@@ -246,7 +284,7 @@ public class ScoreFrame extends JFrame implements ActionListener{
 		layout.setHgap(5);
 		layout.setVgap(5);
 		
-		// Add the 2 lables (player and score) to the panel
+		// Add the 2 tables (player and score) to the panel
 		panelName.add(playerLabel);
 		panelName.add(scoreLabel);
 		
@@ -268,18 +306,27 @@ public class ScoreFrame extends JFrame implements ActionListener{
 		setJMenuBar(menuBar);
 		
 		//Define and add the two drop down menus to the menu bar
-		JMenu helpMenu = new JMenu("Help");
-		JMenu aboutMenu = new JMenu("About");
+		helpMenu = new JMenu("Help");
+		aboutMenu = new JMenu("About");
+		playerMenu = new JMenu("Player");
 		menuBar.add(helpMenu);
 		menuBar.add(aboutMenu);
+		menuBar.add(playerMenu);
 		
 		// Create and add menu items to the drop down menu
 		instructionMenuItem = new JMenuItem("Instructions");
 		authorsMenuItem = new JMenuItem("Authors");
+		historyMenuItem = new JMenuItem("Player History");
 		helpMenu.add(instructionMenuItem);
 		aboutMenu.add(authorsMenuItem);
+		playerMenu.add(historyMenuItem);
 		instructionMenuItem.addActionListener(this);
 		authorsMenuItem.addActionListener(this);
+		historyMenuItem.addActionListener(this);
+		
+		if (currentUserId == 0){
+			historyMenuItem.setEnabled(false);
+		}
 	}
 	
 	// Define the button panel and add the 2 buttons for the panel
@@ -331,12 +378,13 @@ public class ScoreFrame extends JFrame implements ActionListener{
 
 	// addScore method will request user input from player for their initial if their score is 
 	//    greater than the lowest of the top 10 scores.
-	public void addScore(String initials, int score){
+	public void addScore(String initials, int score, int level){
 
 		// method variables
 		String myInitials = "   ";
 		String spaceOut = "            ";
-		int myScore = score;
+		myScore = score;
+		currentLevel = level;
 		
 		// Get the lowest and highest scores
 		lowScore = scores.get(9).getScore();
@@ -380,6 +428,9 @@ public class ScoreFrame extends JFrame implements ActionListener{
 		
 		// Call the reloadScores method
 		reloadScores();
+		
+		// Update the database
+		updateTheDatabase();
 	}
 	
 	//Set the default scores to blanks and 0 if it is the first time running the game
@@ -541,7 +592,103 @@ public class ScoreFrame extends JFrame implements ActionListener{
 		return scoreString;
 	}
 	
+	private void readCurrentUser() throws FileNotFoundException{
+		
+        File file = new File("currentUser.txt");
+        
+        Scanner sc;
+		sc = new Scanner(file);
+	    int lineNumber = 1;
+	    String line = sc.nextLine();
+	    System.out.println("line " + lineNumber + " :" + line);
 
+		currentUserId = Integer.parseInt(line);
+		
+		sc.close();
+		
+	}
+
+	private void updateTheDatabase(){
+		
+		ResultSet resultSet = null;
+		
+		//Insert into database
+		try
+		{
+			// Database information
+			String DATABASE_URL = "jdbc:mysql://209.129.8.4:3306/42029";
+			String USERNAME = "42029";
+			String PASSWORD = "42029csc18b";
+			Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
+			
+			// Assign values to the database fields
+			gameLevel = currentLevel;
+			gameScore = myScore;
+			gameUser = currentUserId;
+
+			// UPDATE the game history data base storing score level and user information
+			//    This PrepareStatement also will return the last update to be used to 
+			//    INSERT into the Xref table below
+			insertNewHistoryRec = connection.prepareStatement(
+				"INSERT INTO entity_history_Simon" +
+				"(game_date, game_level, game_score, game_user)" +
+						"VALUES (?, ?, ?, ?)",PreparedStatement.RETURN_GENERATED_KEYS);
+			
+			insertNewHistoryRec.setDate(1, getCurrentDate());
+			insertNewHistoryRec.setInt(2, gameLevel);
+			insertNewHistoryRec.setInt(3, gameScore);
+			insertNewHistoryRec.setInt(4, gameUser);
+			
+			// Insert the new entry; returns the number of rows updated
+			result = insertNewHistoryRec.executeUpdate();
+			
+			// Get the last generated key for the last GameId value
+			ResultSet keyResultSet = insertNewHistoryRec.getGeneratedKeys();
+			int newGameId = 0;
+			if (keyResultSet.next()){
+				newGameId = (int) keyResultSet.getInt(1);
+				gameId = newGameId;
+			}
+			
+			// UPDATE the Xref Table for game user and game number as per previous PrepareStatement
+			insertNewHistoryXref = connection.prepareStatement(
+					"INSERT INTO xref_user_history_Simon" +
+					"(user_id, game_id)" +
+							"VALUES (?, ?)");
+			
+				insertNewHistoryXref.setInt(1, gameUser);
+				insertNewHistoryXref.setInt(2, gameId);
+			
+				//insert the new entry; returns the number of rows updated
+				result = insertNewHistoryXref.executeUpdate();
+			}
+			catch (SQLException sqlException)
+			{
+				sqlException.printStackTrace();
+				System.exit(1);
+			}
+	}
+	
+	private static java.sql.Date getCurrentDate(){
+		
+		System.out.println("You are reformatting the date");
+		
+		java.util.Date today = new java.util.Date();
+		return new java.sql.Date(today.getTime());
+		
+		
+	}
+	
+	protected void setCurrentUserId(int currentUserId){
+		this.currentUserId = currentUserId;
+	}
+	
+	protected int getCurrentUserId(){
+		return currentUserId;
+	}
+	
+	
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		////if(e.getSource() == playButton){
@@ -560,9 +707,12 @@ public class ScoreFrame extends JFrame implements ActionListener{
 		// Instructions menu
 		if(e.getSource() == instructionMenuItem){
 
-			JOptionPane.showMessageDialog(this,"Scoring:\n 10 Front row  \n20 Second row  \n30 Third Row"
-					+ "\nSpaceShip is ????   \nObject of the game to hit all the aliens before you run"
-					+ "out of lives.  \nPlay as long as possible to get the high score. ",
+			JOptionPane.showMessageDialog(this,"Scoring:  You get 1 point for every matched pattern"
+					+ "\nyou are able to follow.  The game ends when either you reach the limit"
+					+ "\nfor the level you are playing or you enter the wrong pattern"
+					+ "\n\n                       Easy is 8 levels to win"
+					+ "\n               Intermediate is 20 levels to win"
+					+ "\n                    Expert is 31 levels to win",
 					"Instructions",JOptionPane.INFORMATION_MESSAGE);
 		}
 		
@@ -575,8 +725,25 @@ public class ScoreFrame extends JFrame implements ActionListener{
 											+  "                                \n"
 											+  "          Leo Gutierrez         \n"
 											+  "                                \n"
+											+  "          JAVA CSC18B           \n"
+											+  "           DR. LEHR             \n"
+											+  "          SPRING 2015           \n"
+											+  "                                \n"
 											+  "                                \n",
 											"THE AUTHORS",JOptionPane.INFORMATION_MESSAGE);
+		}
+		
+		if(e.getSource() == historyMenuItem){
+			
+			System.out.println("You have pressed the historyMenuItem");
+			
+			//GameHistoryFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			//ghf.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+			ghf = new GameHistoryFrame();
+			ghf.pack();
+	        ghf.setSize(500, 250);
+	        ghf.setVisible(true);
+			
 		}
 	}
 	

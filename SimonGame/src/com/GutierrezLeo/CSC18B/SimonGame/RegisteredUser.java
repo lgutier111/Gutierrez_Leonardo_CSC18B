@@ -16,7 +16,6 @@ public class RegisteredUser implements Serializable{
 		
 		//Default registered user values
 		this("First", "Last", "someone@email.com", "aa1234567", "01/01/1920");
-		
 	}
 	
 	//Registered user constructor 

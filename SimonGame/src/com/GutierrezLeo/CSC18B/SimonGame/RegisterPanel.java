@@ -12,21 +12,32 @@ import javax.swing.SpringLayout;
 import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.WindowEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import java.awt.Label;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Formatter;
 import java.util.FormatterClosedException;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 
 public class RegisterPanel extends JPanel {
 	
@@ -37,11 +48,33 @@ public class RegisterPanel extends JPanel {
 	private JButton saveButton;
 	private final Action action = new SwingAction();
 	private String firstName, lastName, email, studentID, birthDate;
+	
 	private boolean inputVerification = false;
+	private boolean userAlreadyRegistered = false;
+	private boolean somebodyRegistered = false;
+	
 	private Label thankYouLabel = new Label("Input Not Yet Validated");
 	private final Action done = new SwingAction_1();
-	private RegisterFrame parent;
+
 	private static Formatter output;   //outputs data to file
+	private final int status = 0;      //fill with 0 until the user finishes the game to upate value
+	private int result = 0;
+	private int count = 0;
+	
+	private PreparedStatement insertNewRegistrant;
+	private PreparedStatement searchEmailAddress;
+	
+	private DateFormat formatter = new SimpleDateFormat("yyy-mm-dd");
+	private StringTokenizer st;
+	private String[] holdDate;
+	private String day;
+	private String month;
+	private String year;
+	private String reformattedDate;
+	private java.sql.Date sqlDate;
+	
+	private List<String> emailArrayList;
+	private int currentUserId;
 	
 	//Registration panel constructor
 	public RegisterPanel() {
@@ -78,6 +111,7 @@ public class RegisterPanel extends JPanel {
 		emailTextField = new JTextField();
 		studentIDTextField = new JTextField();
 		dateTextField = new JTextField();
+		
 		
 		//Declare save button and set color and action
 		saveButton = new JButton("SAVE");
@@ -126,6 +160,8 @@ public class RegisterPanel extends JPanel {
 		
 		//Set up the panel components
 		setUpRegPanel();
+		
+		this.currentUserId = currentUserId;
 	}
 	
 	//Add components to the registration panel
@@ -171,7 +207,6 @@ public class RegisterPanel extends JPanel {
 		add(btnDone);
 	}
 
-	
 	//Action for the SAVE button
 	private class SwingAction extends AbstractAction {
 		public SwingAction() {
@@ -179,28 +214,131 @@ public class RegisterPanel extends JPanel {
 			putValue(SHORT_DESCRIPTION, "Input Complete");
 		}
 		public void actionPerformed(ActionEvent e) {
+						
+			System.out.println("You are in the actionPerformed for SAVE button");
 			//Get the values entered by the user.
-			firstName = firstNameTextField.getText();
-			lastName = lastNameTextField.getText();
-			email = emailTextField.getText();
-			studentID = studentIDTextField.getText();
-			birthDate = dateTextField.getText();
+			firstName = firstNameTextField.getText().trim();
+			lastName = lastNameTextField.getText().trim();
+			email = emailTextField.getText().trim();
+			studentID = studentIDTextField.getText().trim();
+			birthDate = dateTextField.getText().trim();
 			
 			//Perform the verifyInput method to test the input by the user
+			System.out.println("Right before validate input called");
 			verifyInput();
 			
-			//If the input by the user passes the verification process as valid input,
-			//    then space out the fields and thank the user for registering.
+			// add database save here
 			if (inputVerification){
+				System.out.println("input has been verified");
+				System.out.println("Result going into dbase update is: " + result);
+				//emailArrayList = new ArrayList<String>();
+				ResultSet resultSet = null;
+				
+				//Insert into database
+				try
+				{
+					String DATABASE_URL = "jdbc:mysql://209.129.8.4:3306/42029";
+					String USERNAME = "42029";
+					String PASSWORD = "42029csc18b";
+					Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
+					
+					// SEE IF A USER ALREADY REGISTERED
+					//See if user is already registered by looking at the email address.  If the email address is already
+					//    in the database, then inform the user that there is already somebody registered with that 
+					//    same email.
+					System.out.println("Right before the searchEmailAddress SELECT stmt");
+					searchEmailAddress = connection.prepareStatement("SELECT user_email, user_id FROM entity_user_Simon WHERE user_email = ?");
+					searchEmailAddress.setString(1, email);
+					resultSet = searchEmailAddress.executeQuery();
+					System.out.println("in the see if a user already exists section");
+					emailArrayList = new ArrayList<String>();
+					
+					while (resultSet.next()){
+						System.out.println("You are in the while loop");
+						emailArrayList.add(resultSet.getString("user_email"));
+						System.out.println("array element is: " + emailArrayList.get(0));
+						System.out.println("email entered by user is: " + email);
+						if (emailArrayList.get(0).equals(email)){
+							JOptionPane.showMessageDialog(null, "You are already registered. Thank you.",
+									"Registration Complete", JOptionPane.INFORMATION_MESSAGE);
+							currentUserId = resultSet.getInt("user_id");
+							result = 1;
+							userAlreadyRegistered = true;
+							System.out.println("The current user id is: " + currentUserId);
+						}
+					}
+					
+					System.out.println("Right before the add a user section");
+					//  ADD A USER IF USER HASN'T REGISTERED
+					if (!userAlreadyRegistered){
+						System.out.println("You are in the add user if stmt");
+						// create PREPARED STATEMENT to insert that adds a new entry into the database
+						insertNewRegistrant = connection.prepareStatement(
+							"INSERT INTO entity_user_Simon" +
+							"(first_name, last_name, user_email, student_id, birth_date, status)" +
+									"VALUES (?, ?, ?, ?, ?, ?)");
+					
+						reformatTheDate();
+					
+						insertNewRegistrant.setString(1, firstName);
+						insertNewRegistrant.setString(2, lastName);
+						insertNewRegistrant.setString(3, email);
+						insertNewRegistrant.setString(4, studentID);
+						insertNewRegistrant.setDate(5, sqlDate);
+						insertNewRegistrant.setInt(6, status);
+					
+						//insert the new entry; returns the number of rows updated
+						result = insertNewRegistrant.executeUpdate();
+					}
+					
+					// Get the user_id of the user just added
+					//   Use the email entered above to get the user_id just created
+					if (!userAlreadyRegistered){
+					System.out.println("Right before the searchEmailAddress SELECT stmt");
+					searchEmailAddress = connection.prepareStatement("SELECT user_email, user_id FROM entity_user_Simon WHERE user_email = ?");
+					searchEmailAddress.setString(1, email);
+					resultSet = searchEmailAddress.executeQuery();
+					System.out.println("in the see if a user already exists section");
+					emailArrayList = new ArrayList<String>();
+					
+						while (resultSet.next()){
+							System.out.println("You are in the 2nd while loop");
+							emailArrayList.add(resultSet.getString("user_email"));
+							System.out.println("array element is: " + emailArrayList.get(0));
+							System.out.println("email entered by user is: " + email);
+							if (emailArrayList.get(0).equals(email)){
+								currentUserId = resultSet.getInt("user_id");
+								result = 1;
+								System.out.println("The user id of the newly added user is: " + currentUserId);
+							}
+						}
+					}
+					
+					
+					}
+					catch (SQLException sqlException)
+					{
+						sqlException.printStackTrace();
+						System.exit(1);
+					}
+					
+				if (result == 1)
+					thankYouLabel.setText("User has been registered!!!");
+				else
+					thankYouLabel.setText("User has not been added");
+				
 				firstNameTextField.setText("");
 				lastNameTextField.setText("");
 				emailTextField.setText("");
 				studentIDTextField.setText("");
 				dateTextField.setText("");
-				thankYouLabel.setText("Thank You! User Registered");
 				
-				//Call the method to create the registration file for the user.
-				createTextFile();
+				// Update the file with the current user
+				saveTheCurrentUser();
+				
+				inputVerification = false;
+				userAlreadyRegistered = false;
+				somebodyRegistered = true;
 			}
 		}
 	}
@@ -250,6 +388,73 @@ public class RegisterPanel extends JPanel {
 			System.out.println("Valid input.  Thank you. Input Verification is: " + inputVerification);
 	}
 	
+	private void reformatTheDate(){
+		
+		holdDate = new String[3];
+		
+		st = new StringTokenizer(birthDate, "/-");
+		for (int s = 0; s < 3; s++){
+			splitDate(s);
+		}
+		
+		reformattedDate = holdDate[2] + "-" + holdDate[0] + "-" + holdDate[1];
+		
+		Date myDate = null;
+		try
+		{
+			myDate = formatter.parse(reformattedDate);
+		}
+		catch (ParseException e)
+		{
+			e.printStackTrace();
+		}
+		
+		sqlDate = new java.sql.Date(myDate.getTime());
+	}
+	
+	private void splitDate(int s){
+		
+		holdDate[s] = st.nextToken("/-");
+		
+		month = holdDate[0];
+		day   = holdDate[1];
+		year  = holdDate[2];
+	}
+	
+	protected void setCurrentUserId(int currentUserId){
+		this.currentUserId = currentUserId;
+	}
+	
+	protected int getCurrentUserId(){
+		return currentUserId;
+	}
+	
+	private void saveTheCurrentUser(){
+		
+		try {
+
+			System.out.println("Writing out the currentUserId: " + currentUserId);
+			String stringCurrentUserId = null;
+			stringCurrentUserId = Integer.toString(currentUserId);
+			File file = new File("currentUser.txt");
+ 
+			// if file doesn't exists, then create it
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+ 
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			fw.write(stringCurrentUserId);
+			fw.close();
+ 
+			System.out.println("Done");
+ 
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 	
 	//Done button action - will set the hide the registration panel and activate the settings panel.
 	private class SwingAction_1 extends AbstractAction {
@@ -258,48 +463,17 @@ public class RegisterPanel extends JPanel {
 			putValue(SHORT_DESCRIPTION, "Done with registration");
 		}
 		public void actionPerformed(ActionEvent e) {
-			//System.out.println("You have pressed the DONE button");
+			
+			// if the user bypassed registration, save 0 to the currentUser file
+			if (!somebodyRegistered)
+				currentUserId = 0;
+			
+			saveTheCurrentUser();
+			
 			setVisible(false);
 			SettingsPanel settingsPanel = new SettingsPanel();
 			settingsPanel.setVisible(true);
 		}
-	}
-	
-	private void createTextFile(){
-		
-		JFrame parentFrame = new JFrame();
-		JFileChooser jfc = new JFileChooser();
-		jfc.setDialogTitle("Save .txt Registration File");
-		int userSelection = jfc.showSaveDialog(parentFrame);
-		
-		if(userSelection == JFileChooser.APPROVE_OPTION){
-			File saveLocation = jfc.getSelectedFile();
-			try
-			{
-				output = new Formatter(jfc.getSelectedFile() + ".txt");
-				output.format("%s %s %s %s %s%n", firstName, lastName, email, studentID, birthDate);
-				if (output != null)
-					output.close();
-			}
-			catch (FileNotFoundException fnfe)
-			{
-				System.err.println("File not found.");
-				fnfe.printStackTrace();
-			}
-			catch (FormatterClosedException fce)
-			{
-				System.err.println("Error writing to file.  Terminating.");
-				fce.printStackTrace();
-			}
-			catch (NoSuchElementException elementException)
-			{
-				System.err.println("Invalid input.");
-				elementException.printStackTrace();
-			}
-		}
-		
-		inputVerification = false;
-		
 	}
 }
 
