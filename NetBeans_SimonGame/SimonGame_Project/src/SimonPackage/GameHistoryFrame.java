@@ -82,22 +82,13 @@ public class GameHistoryFrame extends JFrame{
 
 			//search the simon user to get first and lat name 
 			searchSimonUser = connection.prepareStatement("SELECT first_name, last_name FROM entity_user_Simon WHERE user_id = ?");
-			System.out.println("The user id from score frame is " + sf.getCurrentUserId());
 			searchSimonUser.setInt(1, sf.getCurrentUserId());
 			resultSet = searchSimonUser.executeQuery();
-			System.out.println("Get the user first and last name");
 			userArrayList = new ArrayList<String>();
 			
 			while (resultSet.next()){
-				System.out.println("You are in the while loop");
-				//userArrayList.add(resultSet.getString("first_name"));
-				//serArrayList.add(resultSet.getString("last_name"));
 				firstName = resultSet.getString("first_name");
 				lastName = resultSet.getString("last_name");
-				System.out.println("name from dbase is: " + firstName + " " + lastName);
-				
-				//System.out.println("array element is: " + userArrayList.get(0));
-				//System.out.println("email entered by user is: " + email);
 			}
 			
 			

@@ -262,7 +262,7 @@ public class SimonGamePanel extends JPanel implements ActionListener{
         );
     }// </editor-fold>//GEN-END:initComponents
     
-    public void gameSetUp(){
+    private void gameSetUp(){
     	System.out.println("gameSetUp:  The current Thread is: " + Thread.currentThread().getName());
     	fillSimonArray();
     	
@@ -277,7 +277,7 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     // 
     //  The stop watch is also initiated here.  The user will have 5 seconds at the most
     //    in between clicking each subsequent button.
-    public void fillSimonArray(){
+    private void fillSimonArray(){
     	int numLtr;
     	
     	switch(difficulty)
@@ -313,7 +313,7 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     }
     
     // Initialize the user array to all 'A's.  Replace each as the game continues.
-    public void initializeUserArray(){
+    private void initializeUserArray(){
     	System.out.println("The current Thread is: " + Thread.currentThread().getName());
     	userArray = new char [simonArraySize];
     	
@@ -323,7 +323,7 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     }
     
     // Generate a random number from 1 to 4
-    public int getRndm(){
+    private int getRndm(){
     	Random rand = new Random();
     	int random = rand.nextInt(4) + 1;
     	return random;
@@ -415,11 +415,11 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     }
     
     //Start the stop watch
-    public void startStopWatch(){
+    private void startStopWatch(){
     	startTime = System.currentTimeMillis();
     }
     
-    public double elapsedTime(){
+    private double elapsedTime(){
     	stopTime = System.currentTimeMillis();
     	return (stopTime - startTime) / 1000.0;
     }
@@ -577,7 +577,7 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     }          
     
     // Wait the milliseconds as defined by the calling of the method in the millisecs variable
-    public void waitExec(long millisecs){
+    private void waitExec(long millisecs){
     	System.out.println("***** You are in the waitExec method *****");
     	System.out.println("The current thread is: " + Thread.currentThread().getName());
     	try 
@@ -591,7 +591,7 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     }
     
  // Open, read and close the settings file
-    public void readSequentialFile(){
+    private void readSequentialFile(){
     	openFile();
     	readRecord();
     	closeFile();
@@ -599,7 +599,7 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     }
     
     // Open the settings file for the game
-    public void openFile(){
+    private void openFile(){
     	try
     	{
     		input = new ObjectInputStream(Files.newInputStream(Paths.get("simonsettings.ser")));
@@ -612,7 +612,7 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     }
     
     // Read the settings file
-    public void readRecord(){
+    private void readRecord(){
     	try
     	{
     		while (true)
@@ -642,7 +642,7 @@ public class SimonGamePanel extends JPanel implements ActionListener{
     }
     
     // Close the settings file
-    public void closeFile(){
+    private void closeFile(){
     	try
     	{
     		if (input != null)

@@ -44,6 +44,8 @@ import java.util.FormatterClosedException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+import java.awt.Dimension;
+import java.awt.Font;
 
 public class RegisterPanel extends JPanel {
 	
@@ -63,7 +65,7 @@ public class RegisterPanel extends JPanel {
 	private final Action done = new SwingAction_1();
 
 	private static Formatter output;   //outputs data to file
-	private final int status = 0;      //fill with 0 until the user finishes the game to upate value
+	private final int status = 1;      //fill with 1 for now until i have time to code the proper value of 1, 2, 3, 4 or 5
 	private int result = 0;
 	private int count = 0;
 	
@@ -121,6 +123,10 @@ public class RegisterPanel extends JPanel {
 		
 		//Declare save button and set color and action
 		saveButton = new JButton("SAVE");
+		saveButton.setFont(new Font("Tahoma", Font.PLAIN, 10));
+		saveButton.setMinimumSize(new Dimension(61, 23));
+		saveButton.setMaximumSize(new Dimension(61, 23));
+		saveButton.setPreferredSize(new Dimension(61, 23));
 		saveButton.setBackground(Color.WHITE);
 		saveButton.setAction(action);
 		saveButton.addActionListener(new ActionListener() {
@@ -202,12 +208,13 @@ public class RegisterPanel extends JPanel {
 		//Declare Done button with action and location relative to other button.  Coded by
 		//  eclipse GUI builder
 		JButton btnDone = new JButton("DONE");
+		btnDone.setFont(new Font("Tahoma", Font.PLAIN, 10));
+		currentLayout.putConstraint(SpringLayout.NORTH, btnDone, 21, SpringLayout.SOUTH, saveButton);
+		currentLayout.putConstraint(SpringLayout.EAST, btnDone, 0, SpringLayout.EAST, firstNameLabel);
 		btnDone.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			}
 		});
-		currentLayout.putConstraint(SpringLayout.NORTH, btnDone, 22, SpringLayout.SOUTH, saveButton);
-		currentLayout.putConstraint(SpringLayout.WEST, btnDone, 0, SpringLayout.WEST, emailLabel);
 		btnDone.setBackground(Color.WHITE);
 		btnDone.setAction(done);
 		add(btnDone);
@@ -221,7 +228,6 @@ public class RegisterPanel extends JPanel {
 		}
 		public void actionPerformed(ActionEvent e) {
 						
-			System.out.println("You are in the actionPerformed for SAVE button");
 			//Get the values entered by the user.
 			firstName = firstNameTextField.getText().trim();
 			lastName = lastNameTextField.getText().trim();
@@ -230,14 +236,10 @@ public class RegisterPanel extends JPanel {
 			birthDate = dateTextField.getText().trim();
 			
 			//Perform the verifyInput method to test the input by the user
-			System.out.println("Right before validate input called");
 			verifyInput();
 			
 			// add database save here
 			if (inputVerification){
-				System.out.println("input has been verified");
-				System.out.println("Result going into dbase update is: " + result);
-				//emailArrayList = new ArrayList<String>();
 				ResultSet resultSet = null;
 				
 				//Insert into database
@@ -252,32 +254,24 @@ public class RegisterPanel extends JPanel {
 					//See if user is already registered by looking at the email address.  If the email address is already
 					//    in the database, then inform the user that there is already somebody registered with that 
 					//    same email.
-					System.out.println("Right before the searchEmailAddress SELECT stmt");
 					searchEmailAddress = connection.prepareStatement("SELECT user_email, user_id FROM entity_user_Simon WHERE user_email = ?");
 					searchEmailAddress.setString(1, email);
 					resultSet = searchEmailAddress.executeQuery();
-					System.out.println("in the see if a user already exists section");
 					emailArrayList = new ArrayList<String>();
 					
 					while (resultSet.next()){
-						System.out.println("You are in the while loop");
 						emailArrayList.add(resultSet.getString("user_email"));
-						System.out.println("array element is: " + emailArrayList.get(0));
-						System.out.println("email entered by user is: " + email);
 						if (emailArrayList.get(0).equals(email)){
 							JOptionPane.showMessageDialog(null, "You are already registered. Thank you.",
 									"Registration Complete", JOptionPane.INFORMATION_MESSAGE);
 							currentUserId = resultSet.getInt("user_id");
 							result = 1;
 							userAlreadyRegistered = true;
-							System.out.println("The current user id is: " + currentUserId);
 						}
 					}
 					
-					System.out.println("Right before the add a user section");
 					//  ADD A USER IF USER HASN'T REGISTERED
 					if (!userAlreadyRegistered){
-						System.out.println("You are in the add user if stmt");
 						// create PREPARED STATEMENT to insert that adds a new entry into the database
 						insertNewRegistrant = connection.prepareStatement(
 							"INSERT INTO entity_user_Simon" +
@@ -300,22 +294,16 @@ public class RegisterPanel extends JPanel {
 					// Get the user_id of the user just added
 					//   Use the email entered above to get the user_id just created
 					if (!userAlreadyRegistered){
-					System.out.println("Right before the searchEmailAddress SELECT stmt");
 					searchEmailAddress = connection.prepareStatement("SELECT user_email, user_id FROM entity_user_Simon WHERE user_email = ?");
 					searchEmailAddress.setString(1, email);
 					resultSet = searchEmailAddress.executeQuery();
-					System.out.println("in the see if a user already exists section");
 					emailArrayList = new ArrayList<String>();
 					
 						while (resultSet.next()){
-							System.out.println("You are in the 2nd while loop");
 							emailArrayList.add(resultSet.getString("user_email"));
-							System.out.println("array element is: " + emailArrayList.get(0));
-							System.out.println("email entered by user is: " + email);
 							if (emailArrayList.get(0).equals(email)){
 								currentUserId = resultSet.getInt("user_id");
 								result = 1;
-								System.out.println("The user id of the newly added user is: " + currentUserId);
 							}
 						}
 					}
@@ -452,8 +440,6 @@ public class RegisterPanel extends JPanel {
 			FileWriter fw = new FileWriter(file.getAbsoluteFile());
 			fw.write(stringCurrentUserId);
 			fw.close();
- 
-			System.out.println("Done");
  
 		} catch (IOException e) {
 			e.printStackTrace();

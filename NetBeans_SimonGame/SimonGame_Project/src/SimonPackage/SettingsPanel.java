@@ -34,7 +34,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Formatter;
 import java.util.NoSuchElementException;
 
 import javax.swing.AbstractAction;
@@ -42,6 +41,7 @@ import javax.swing.Action;
 
 public class SettingsPanel extends JPanel {
 	private final Action action = new Save();
+	private final Action action_1 = new Cancel();
 	private final Action action_2 = new Original();
 	private final Action action_3 = new ColorSwatch();
 	private final Action action_5 = new radioEasy();
@@ -49,6 +49,8 @@ public class SettingsPanel extends JPanel {
 	private final Action action_7 = new radioHard();
 	private final Action action_4 = new radioSoundOff();
 	private final Action action_8 = new radioSoundOn();
+	private final Action action_9 = new Done();
+	private final Action action_10 = new Load();
 	
 	private int fileStatusSetting;
 	private int difficultySetting;
@@ -60,10 +62,10 @@ public class SettingsPanel extends JPanel {
 	private SimonWelcome simonWelcome;
 	private RegisterFrame registerFrame;
 
-	private static ObjectOutputStream output;  //outputs data to file
+	private static ObjectOutputStream output;   //outputs data to file
 	private static ObjectOutputStream output2;  // outputs to a file using JFileChooser
-	private static ObjectInputStream input;    //read input data file
-	private static ObjectInputStream input2;   // read input file using JFileChooser
+	private static ObjectInputStream input;  //read input data file
+	private static ObjectInputStream input2;  // read input data from user saved file using JFileChooser
 	private File saveLocation;
 	private File openLocation;
 	
@@ -75,38 +77,27 @@ public class SettingsPanel extends JPanel {
 	private JRadioButton rdbtnOff = new JRadioButton("Off");
 	private JRadioButton rdbtnOn = new JRadioButton("On");
 	private SpringLayout springLayout;
-	private JLabel lblDifficulty;
+	private JButton btnOriginal;
 	private JButton btnSave;
-	private JButton btnLoad;
-	private final JButton btnDone = new JButton("Done");
+	
+	
 	
 	// Constructor
 	public SettingsPanel() {
 		
 		setUpSettingsPanel();
 		
-		readSequentialFile();
-
-		//color = new Color(rSetting, gSetting, bSetting);
-                setUpColor();
+		readSerializedFile();
 		
-
-
+		color = new Color(rSetting, gSetting, bSetting);
+		setBackground(color);
+		
 	}
-        
-        public void setUpColor(){
-            
-            color = new Color(rSetting, gSetting, bSetting);
-            
-        }
 	
-	public void setUpSettingsPanel(){
+	private void setUpSettingsPanel(){
 		
 		setForeground(Color.WHITE);
-		//setBackground(Color.BLACK);
-		//setBackground(color);
 		springLayout = new SpringLayout();
-		springLayout.putConstraint(SpringLayout.EAST, btnDone, -67, SpringLayout.EAST, this);
 		setLayout(springLayout);
 		
 		JLabel lblNewLabel = new JLabel("GAME SETTINGS");
@@ -116,7 +107,7 @@ public class SettingsPanel extends JPanel {
 		lblNewLabel.setForeground(Color.WHITE);
 		add(lblNewLabel);
 		
-		lblDifficulty = new JLabel("Difficulty");
+		JLabel lblDifficulty = new JLabel("Difficulty");
 		springLayout.putConstraint(SpringLayout.NORTH, lblDifficulty, 32, SpringLayout.SOUTH, lblNewLabel);
 		springLayout.putConstraint(SpringLayout.WEST, lblDifficulty, 78, SpringLayout.WEST, this);
 		lblDifficulty.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -169,7 +160,7 @@ public class SettingsPanel extends JPanel {
 		springLayout.putConstraint(SpringLayout.WEST, lblBackgroundColor, 0, SpringLayout.WEST, lblDifficulty);
 		add(lblBackgroundColor);
 		
-		JButton btnOriginal = new JButton("Original Color");
+		btnOriginal = new JButton("Original Color");
 		btnOriginal.setRolloverEnabled(false);
 		btnOriginal.setForeground(new Color(0, 0, 0));
 		btnOriginal.setAction(action_2);
@@ -193,11 +184,6 @@ public class SettingsPanel extends JPanel {
 		add(btnColorSwatch);
 		
 		btnSave = new JButton("Save");
-		springLayout.putConstraint(SpringLayout.NORTH, btnDone, 0, SpringLayout.NORTH, btnSave);
-		btnSave.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
 		btnSave.setRolloverEnabled(false);
 		btnSave.setAction(action);
 		btnSave.setBackground(Color.WHITE);
@@ -205,30 +191,21 @@ public class SettingsPanel extends JPanel {
 		springLayout.putConstraint(SpringLayout.SOUTH, btnSave, -34, SpringLayout.SOUTH, this);
 		add(btnSave);
 		
-		btnLoad = new JButton("Load");
-		btnLoad.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				loadUserSettingFile();
-			}
-		});
-		btnLoad.setRolloverEnabled(false);
-		btnLoad.setBackground(Color.WHITE);
-		springLayout.putConstraint(SpringLayout.WEST, btnLoad, 0, SpringLayout.WEST, btnSave);
-		springLayout.putConstraint(SpringLayout.SOUTH, btnLoad, -18, SpringLayout.NORTH, btnSave);
-		add(btnLoad);
 		
-		setBackground(Color.BLACK);
-		btnDone.setBackground(Color.WHITE);
+		JButton btnDone = new JButton("Done");
+		btnDone.setAction(action_9);
 		btnDone.setRolloverEnabled(false);
-		btnDone.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-				simonWelcome = new SimonWelcome();
-				simonWelcome.setVisible(true);
-			}
-		});
-		
+		btnDone.setBackground(Color.WHITE);
+		springLayout.putConstraint(SpringLayout.NORTH, btnDone, 0, SpringLayout.NORTH, btnSave);
+		springLayout.putConstraint(SpringLayout.WEST, btnDone, 0, SpringLayout.WEST, btnOriginal);
 		add(btnDone);
+		
+		JButton btnLoad = new JButton("Load");
+		btnLoad.setAction(action_10);
+		btnLoad.setRolloverEnabled(false);
+		springLayout.putConstraint(SpringLayout.WEST, btnLoad, 0, SpringLayout.WEST, btnSave);
+		springLayout.putConstraint(SpringLayout.SOUTH, btnLoad, -14, SpringLayout.NORTH, btnSave);
+		add(btnLoad);
 		
 		
 		ButtonGroup radioGroup = new ButtonGroup();
@@ -236,7 +213,6 @@ public class SettingsPanel extends JPanel {
 		radioGroup.add(rdbtnMedium);
 		radioGroup.add(rdbtnHard);
 		
-		//JRadioButton rdbtnOff = new JRadioButton("Off");
 		rdbtnOff.setAction(action_4);
 		rdbtnOff.setRolloverEnabled(false);
 		rdbtnOff.setBackground(color);
@@ -244,7 +220,6 @@ public class SettingsPanel extends JPanel {
 		springLayout.putConstraint(SpringLayout.NORTH, rdbtnOff, 1, SpringLayout.NORTH, lblSound);
 		add(rdbtnOff);
 		
-		//JRadioButton rdbtnOn = new JRadioButton("On");
 		rdbtnOn.setAction(action_8);
 		rdbtnOn.setSelected(true);
 		rdbtnOn.setRolloverEnabled(false);
@@ -260,6 +235,8 @@ public class SettingsPanel extends JPanel {
 		radioGroupSound.add(rdbtnOn);
 	}
 	
+	
+	// SAVE button
 	private class Save extends AbstractAction {
 		public Save() {
 			putValue(NAME, "Save");
@@ -268,14 +245,33 @@ public class SettingsPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			//Set the file status setting to 1.  If the game abnormally ends, it will restore the settings being saved.
 			fileStatusSetting = 1;
-			createSequentialFile();
+			createSerializedFile();
+			createUserSettingFile();
+			
 			setVisible(false);
+			registerFrame = new RegisterFrame();
+			registerFrame.setVisible(false);
 			simonWelcome = new SimonWelcome();
 			simonWelcome.setVisible(true);
 		}
 	}
 	
+	// CANCEL button
+	private class Cancel extends AbstractAction {
+		public Cancel() {
+			putValue(NAME, "Cancel");
+			putValue(SHORT_DESCRIPTION, "Cancel game settings");
+		}
+		public void actionPerformed(ActionEvent e) {
+			setVisible(false);
+			registerFrame = new RegisterFrame();
+			registerFrame.setVisible(false);
+			simonWelcome = new SimonWelcome();
+			simonWelcome.setVisible(true);
+		}
+	}
 	
+	// ORIGINAL button
 	private class Original extends AbstractAction {
 		public Original() {
 			putValue(NAME, "Original");
@@ -289,6 +285,7 @@ public class SettingsPanel extends JPanel {
 		}
 	}
 	
+	// COLOR SWATCH button
 	private class ColorSwatch extends AbstractAction {
 		public ColorSwatch() {
 			putValue(NAME, "ColorSwatch");
@@ -306,6 +303,7 @@ public class SettingsPanel extends JPanel {
 		}
 	}
 	
+	// RADIO BUTTON EASY
 	private class radioEasy extends AbstractAction {
 		public radioEasy() {
 			putValue(NAME, "Easy");
@@ -316,6 +314,7 @@ public class SettingsPanel extends JPanel {
 		}
 	}
 	
+	// RADIO BUTTON MEDIUM
 	private class radioMedium extends AbstractAction {
 		public radioMedium() {
 			putValue(NAME, "Medium");
@@ -326,6 +325,7 @@ public class SettingsPanel extends JPanel {
 		}
 	}
 	
+	// RADIO BUTTON HARD
 	private class radioHard extends AbstractAction {
 		public radioHard() {
 			putValue(NAME, "Hard");
@@ -335,6 +335,8 @@ public class SettingsPanel extends JPanel {
 			difficultySetting = 3;
 		}
 	}
+	
+	// RADIO BUTTON SOUND OFF
 	private class radioSoundOff extends AbstractAction {
 		public radioSoundOff() {
 			putValue(NAME, "Off");
@@ -344,6 +346,8 @@ public class SettingsPanel extends JPanel {
 			soundSetting = 0;
 		}
 	}
+	
+	// RADIO BUTTON SOUND ON
 	private class radioSoundOn extends AbstractAction {
 		public radioSoundOn() {
 			putValue(NAME, "On");
@@ -354,50 +358,66 @@ public class SettingsPanel extends JPanel {
 		}
 	}
 	
+	// DONE button
+	private class Done extends AbstractAction {
+		public Done() {
+			putValue(NAME, "Done");
+			putValue(SHORT_DESCRIPTION, "Done with settings");
+		}
+		public void actionPerformed(ActionEvent e) {
+			setVisible(false);
+			registerFrame = new RegisterFrame();
+			registerFrame.setVisible(false);
+			simonWelcome = new SimonWelcome();
+			simonWelcome.setVisible(true);
+		}
+	}
+	
+	// LOAD button
+	private class Load extends AbstractAction {
+		public Load() {
+			putValue(NAME, "Load");
+			putValue(SHORT_DESCRIPTION, "Load custom settings");
+		}
+		public void actionPerformed(ActionEvent e) {
+			loadUserSettingFile();
+		}
+	}
 	
 	
-private void createSequentialFile(){
+	
+	private void createSerializedFile(){
+		
 		openFile();
 		addRecord();
 		closeFile();
-                createUserSettingFile();
+		
 	}
 	
-	public void openFile(){
-		// The last user setting file.  This file will be read in automatically at the start of
-		// every game.
-		System.out.println("You are in the open file method");
+	private static void openFile(){
 		try{
 			File file = new File("simonsettings.ser");
 			
 			if(!file.exists()){
-				System.out.println("you are in createNewFile if stmt");
 				file.createNewFile();
 			}
 			
 			output = new ObjectOutputStream(
 					Files.newOutputStream(Paths.get("simonsettings.ser")));
-			
-			//createUserSettingFile();
-			
-			//output2 = new ObjectOutputStream(new FileOutputStream(saveLocation)); 
-			
-					//Files.newOutputStream(Paths.get("afile.txt")));
 		} catch (IOException ioException) {
 			System.err.println("Error opening file.  Terminating.");
 			System.exit(1);  // terminate program
 		}
 	}
 	
-	public void addRecord(){
-		System.out.println("You are in the addRecord method");
+	private void addRecord(){
+	
 		try 
 		{
 		GameSettings gameSettings = new GameSettings(fileStatusSetting, difficultySetting, soundSetting,  
 				rSetting, gSetting, bSetting);
 		
 		output.writeObject(gameSettings);
-		//output2.writeObject(gameSettings);
 		} 
 		catch (NoSuchElementException elementException)
 		{ 
@@ -405,200 +425,36 @@ private void createSequentialFile(){
 		} 
 		catch (IOException ioException)
 		{
-			System.err.println("Error writing to file.  Terminating.");
+			System.err.println("Error writeing to file.  Terminating.");
 			System.exit(1);
+			//break;
 		}
 	}
 	
-	public void closeFile(){
-		System.out.println("You are in the closefile method");
+	private void closeFile(){
+		
 		try
 		{
 				output.close();
-				//output2.close();
 		}
 		catch (IOException ioException)
 		{
 			System.err.println("Error closing file.  Terminating.");
 			System.exit(1);
 		}
-		
 	}
 	
-	// Using the JFileChooser, this will allow a user to save his own custom settings
-	private void createUserSettingFile(){
-		System.out.println("you are in the createUserSettingsFile method");
-		JFrame parentFrame = new JFrame();
-		
-		JFileChooser jfc = new JFileChooser();
-		jfc.setDialogTitle("Save Settings File");
-		int userSelection = jfc.showSaveDialog(parentFrame);
-		
-		if(userSelection == JFileChooser.APPROVE_OPTION){
-			saveLocation = jfc.getSelectedFile();
-		}
-                try
-                {
-                output2 = new ObjectOutputStream(new FileOutputStream(saveLocation)); 
-                }
-                catch (IOException ioException)
-                {
-                    System.err.println("Error opening file.  Terminating.");
-			System.exit(1);  // terminate program
-                }
-                
-                addUserRecord();
-                closeUserFile();
-	}
-	
-        public void addUserRecord(){
-		System.out.println("You are in the addRecord method");
-		try 
-		{
-		GameSettings gameSettings = new GameSettings(fileStatusSetting, difficultySetting, soundSetting,  
-				rSetting, gSetting, bSetting);
-		
-		output2.writeObject(gameSettings);
-		//output2.writeObject(gameSettings);
-		} 
-		catch (NoSuchElementException elementException)
-		{ 
-			System.err.println("Invalid input. Please try again.");
-		} 
-		catch (IOException ioException)
-		{
-			System.err.println("Error writing to file.  Terminating.");
-			System.exit(1);
-		}
-	}
-	
-	public void closeUserFile(){
-		System.out.println("You are in the closefile method");
-		try
-		{
-				output2.close();
-				//output2.close();
-		}
-		catch (IOException ioException)
-		{
-			System.err.println("Error closing file.  Terminating.");
-			System.exit(1);
-		}
-		
-	}
-        
-        
-	
-	// Using the JFileChooser, this will allow a user to load his own custom settings
-	private void loadUserSettingFile(){
-		System.out.println("you are in the loadUserSettingsFile method");
-		
-		JFrame parentFrame = new JFrame();
-		
-		JFileChooser jfc = new JFileChooser();
-		jfc.setDialogTitle("Load Settings File");
-		int userSelection = jfc.showOpenDialog(parentFrame);
-		
-		if(userSelection == JFileChooser.APPROVE_OPTION){
-			openLocation = jfc.getSelectedFile();
-		}
-		
-		// open the input file
-		try
-		{
-			input2 = new ObjectInputStream(new FileInputStream(openLocation));
-		}
-		catch (IOException ioException)
-		{
-			System.err.println("Error opening file.");
-		}
-		
-		
-		//  read the settings record selected by the user
-		try
-    	{
-    		while (true)
-    		{
-    			GameSettings setting = (GameSettings) input2.readObject();
-    			fileStatusSetting = setting.getFileStatus();
-    			
-    			difficultySetting = setting.getDifficulty();
-    			if(difficultySetting == 1){
-    				rdbtnEasy.setSelected(true);
-    			} 
-    			
-    			if(difficultySetting == 2){
-    				rdbtnMedium.setSelected(true);
-    			} 
-    			
-    			if(difficultySetting == 3){
-    				rdbtnHard.setSelected(true);
-    			}
-    				
-    			soundSetting = setting.getSound();
-    			if(soundSetting == 0){
-    				rdbtnOff.setSelected(true);
-    			} else {
-    				rdbtnOn.setSelected(true);
-    			}
-    			
-    			rSetting = setting.getR();
-    			gSetting = setting.getG();
-    			bSetting = setting.getB();
-    			
-    			if(fileStatusSetting == 0){
-    				//use default settings if app was closed properly and not interrupted last time it was running
-    				fileStatusSetting = 1;
-    				difficultySetting = 1;
-    				soundSetting = 1;
-    				rSetting = 0;
-    				gSetting = 0;
-    				bSetting = 0;
-    				rdbtnEasy.setSelected(true);
-    				rdbtnOn.setSelected(true);
-    			}
-                        setUpColor();
-    		}
-    	}
-    	catch (EOFException endOfFileException)
-    	{
-    		System.err.println("No More Records");
-    	}
-    	catch (ClassNotFoundException classNotFoundException)
-    	{
-    		System.err.println("Invalid object type.  Terminating. ");
-    	}
-    	catch (IOException ioException)
-    	{
-    		System.err.println("Error reading from file.  Terminating.");
-    	}
-		
-		
-		// close the input file
-    	try
-    	{
-    		if (input2 != null)
-    			input2.close();
-    	}
-    	catch (IOException ioException)
-    	{
-    		System.err.println("Error closing file.  Terminating.");
-    		System.exit(1);
-    	}
-		
-	}
-	
-	
-	
-	// Read in the last user settings
-	public void readSequentialFile(){
+	private void readSerializedFile(){
+    	
     	openFileInput();
     	readRecord();
     	closeFileInput();
+    	
     }
 	
 	
-	public void openFileInput(){
+	private void openFileInput(){
+    	
     	try
     	{
     		input = new ObjectInputStream(Files.newInputStream(Paths.get("simonsettings.ser")));
@@ -610,7 +466,8 @@ private void createSequentialFile(){
     	}
     }
     
-    public void readRecord(){
+    private void readRecord(){
+    	
     	try
     	{
     		while (true)
@@ -652,8 +509,8 @@ private void createSequentialFile(){
     				bSetting = 0;
     				rdbtnEasy.setSelected(true);
     				rdbtnOn.setSelected(true);
+    				//color = new Color(0,0,0);
     			}
-                        setUpColor();
     		}
     	}
     	catch (EOFException endOfFileException)
@@ -670,7 +527,8 @@ private void createSequentialFile(){
     	}
     }
     
-    public void closeFileInput(){
+    private void closeFileInput(){
+    	
     	try
     	{
     		if (input != null)
@@ -682,4 +540,149 @@ private void createSequentialFile(){
     		System.exit(1);
     	}
     }
+    
+	// Using the JFileChooser, this will allow a user to save his own custom settings
+	private void createUserSettingFile(){
+		JFrame parentFrame = new JFrame();
+		
+		JFileChooser jfc = new JFileChooser();
+		jfc.setDialogTitle("Save Settings File");
+		int userSelection = jfc.showSaveDialog(parentFrame);
+		
+		if(userSelection == JFileChooser.APPROVE_OPTION){
+			saveLocation = jfc.getSelectedFile();
+		}
+                try
+                {
+                output2 = new ObjectOutputStream(new FileOutputStream(saveLocation)); 
+                }
+                catch (IOException ioException)
+                {
+                    System.err.println("Error opening file.  Terminating.");
+                    System.exit(1);  // terminate program
+                }
+                
+                addUserRecord();
+                closeUserFile();
+	}
+	
+        public void addUserRecord(){
+		System.out.println("You are in the addRecord method");
+		try 
+		{
+			GameSettings gameSettings = new GameSettings(fileStatusSetting, difficultySetting, soundSetting,  
+			rSetting, gSetting, bSetting);
+			output2.writeObject(gameSettings);
+		} 
+		catch (NoSuchElementException elementException)
+		{ 
+			System.err.println("Invalid input. Please try again.");
+		} 
+		catch (IOException ioException)
+		{
+			System.err.println("Error writing to file.  Terminating.");
+			System.exit(1);
+		}
+	}
+	
+	public void closeUserFile(){
+		try
+		{
+				output2.close();
+		}
+		catch (IOException ioException)
+		{
+			System.err.println("Error closing file.  Terminating.");
+			System.exit(1);
+		}
+		
+	}
+    
+	
+	// Using the JFileChooser, this will allow a user to load his own custom settings
+		private void loadUserSettingFile(){
+			
+			JFrame parentFrame = new JFrame();
+			
+			JFileChooser jfc = new JFileChooser();
+			jfc.setDialogTitle("Load Settings File");
+			int userSelection = jfc.showOpenDialog(parentFrame);
+			
+			if(userSelection == JFileChooser.APPROVE_OPTION){
+				openLocation = jfc.getSelectedFile();
+			}
+			
+			// open the input file
+			try
+			{
+				input2 = new ObjectInputStream(new FileInputStream(openLocation));
+			}
+			catch (IOException ioException)
+			{
+				System.err.println("Error opening file.");
+			}
+			
+			
+			//  read the settings record selected by the user
+			try
+	    	{
+	    		while (true)
+	    		{
+	    			GameSettings setting = (GameSettings) input2.readObject();
+	    			fileStatusSetting = setting.getFileStatus();
+	    			
+	    			difficultySetting = setting.getDifficulty();
+	    			if(difficultySetting == 1){
+	    				rdbtnEasy.setSelected(true);
+	    			} 
+	    			
+	    			if(difficultySetting == 2){
+	    				rdbtnMedium.setSelected(true);
+	    			} 
+	    			
+	    			if(difficultySetting == 3){
+	    				rdbtnHard.setSelected(true);
+	    			}
+	    				
+	    			soundSetting = setting.getSound();
+	    			if(soundSetting == 0){
+	    				rdbtnOff.setSelected(true);
+	    			} else {
+	    				rdbtnOn.setSelected(true);
+	    			}
+	    			
+	    			rSetting = setting.getR();
+	    			gSetting = setting.getG();
+	    			bSetting = setting.getB();
+	    			
+               		color = new Color(rSetting, gSetting, bSetting);
+               		setBackground(color);    
+               		createSerializedFile();
+	    		}
+	    	}
+	    	catch (EOFException endOfFileException)
+	    	{
+	    		System.err.println("No More Records");
+	    	}
+	    	catch (ClassNotFoundException classNotFoundException)
+	    	{
+	    		System.err.println("Invalid object type.  Terminating. ");
+	    	}
+	    	catch (IOException ioException)
+	    	{
+	    		System.err.println("Error reading from file.  Terminating.");
+	    	}
+			
+			// close the input file
+	    	try
+	    	{
+	    		if (input2 != null)
+	    			input2.close();
+	    	}
+	    	catch (IOException ioException)
+	    	{
+	    		System.err.println("Error closing file.  Terminating.");
+	    		System.exit(1);
+	    	}
+		}
 }

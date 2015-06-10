@@ -79,12 +79,8 @@ public class ScoreFrame extends JFrame implements ActionListener{
 	private int gameScore;
 	private int gameUser;
 	
-	// the select statement to get the latest entry in a mysql table (for my history file
-	// is:  SELECT game_id FROM entity_history_Simon ORDER BY game_id DESC LIMIT 0,1
-
 	private SimonWelcome simonWelcome;
 	private GameHistoryFrame ghf;
-	//private RegisterPanel rp;
 	
 	// Define input / output streams
 	FileInputStream fileInput = null;
@@ -118,11 +114,6 @@ public class ScoreFrame extends JFrame implements ActionListener{
 		loadHeader();
 		loadPanels();
 		loadButtonPanel();
-		
-		//updateTheDatabase();
-		
-		
-		//System.out.println("The current player/user is player number: " + rp.getCurrentUserId());
 	}
 	
 	// Load header method to load the Bold Header
@@ -243,8 +234,6 @@ public class ScoreFrame extends JFrame implements ActionListener{
 	//    spots, then the fields will be to black (invisible).
 	public void loadFileInfo(JLabel playerLabel, JLabel scoreLabel){
 		
-		//System.out.println("you are in the loadFileInfo method");
-		
 		holdInitial = scores.get(k).getInitials();
 		holdScore = scores.get(k).getScore();
 		
@@ -263,8 +252,6 @@ public class ScoreFrame extends JFrame implements ActionListener{
 	
 	// Set font and font colors
 	public void setFontColors(JLabel lblName){
-		
-		//System.out.println("You are in the setFontColors method");
 		
 		lblName.setFont(new Font("Courier", Font.BOLD, 20));
 		lblName.setForeground(Color.WHITE);
@@ -631,13 +618,12 @@ public class ScoreFrame extends JFrame implements ActionListener{
 			//    INSERT into the Xref table below
 			insertNewHistoryRec = connection.prepareStatement(
 				"INSERT INTO entity_history_Simon" +
-				"(game_date, game_level, game_score, game_user)" +
-						"VALUES (?, ?, ?, ?)",PreparedStatement.RETURN_GENERATED_KEYS);
+				"(game_date, game_level, game_score)" +
+						"VALUES (?, ?, ?)",PreparedStatement.RETURN_GENERATED_KEYS);
 			
 			insertNewHistoryRec.setDate(1, getCurrentDate());
 			insertNewHistoryRec.setInt(2, gameLevel);
 			insertNewHistoryRec.setInt(3, gameScore);
-			insertNewHistoryRec.setInt(4, gameUser);
 			
 			// Insert the new entry; returns the number of rows updated
 			result = insertNewHistoryRec.executeUpdate();
