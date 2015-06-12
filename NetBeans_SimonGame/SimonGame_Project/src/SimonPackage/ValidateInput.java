@@ -16,14 +16,8 @@ public class ValidateInput {
 	          Pattern.compile("(0?[1-9]|1[012])/(0?[1-9]|[12][0-9]|3[01])/((19|20)\\d\\d)");
 	  private static Matcher matcher;
 	  
-	  //private static final String DATE_PATTERN = 
-	  //        "(0?[1-9]|1[012])/(0?[1-9]|[12][0-9]|3[01])/((19|20)\\d\\d)";
-	 
-	
 	public ValidateInput(){
-		//pattern = Pattern.compile(DATE_PATTERN);
-		//Matcher matcher = DATE_PATTERN.matcher(todayDate);
-		System.out.println("you have just compiled the DATE_PATTERN in the constructor");
+
 	}
 	
 	// Validate first name.  

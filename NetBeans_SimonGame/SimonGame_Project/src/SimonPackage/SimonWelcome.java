@@ -16,8 +16,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
 import javax.swing.BorderFactory;
+import javax.swing.JFrame;
 import javax.swing.border.Border;
 
 /**
@@ -27,7 +27,7 @@ import javax.swing.border.Border;
  * 			Dr Mark Lehr
  * 			Riverside City College
  */
-public class SimonWelcome extends javax.swing.JFrame {
+public class SimonWelcome extends JFrame {
 
     /**
      * Creates new form SimonWelcome
@@ -46,9 +46,6 @@ public class SimonWelcome extends javax.swing.JFrame {
     
     // Constructor to the splash screen
     public SimonWelcome() {
-    	
-    	//System.out.println("You are in the SimonWelcome constructor");
-    	
        try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -314,7 +311,6 @@ public class SimonWelcome extends javax.swing.JFrame {
     	}
     }
     
-    
     // Play Button action defined
     private void playButtonActionPerformed(java.awt.event.ActionEvent evt) {
         //System.out.println("You have pressed the play button in SimonWelcome");
@@ -337,14 +333,11 @@ public class SimonWelcome extends javax.swing.JFrame {
         pack();
         gamePanel.setVisible(true);
     }                                          
-
     
     // Exit button action defined
     private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {                                           
         System.exit(0); 
     }                                          
-
-    
     // Variables declaration - do not modify                     
     private javax.swing.JButton exitButton;
     private javax.swing.JLabel sLabel;

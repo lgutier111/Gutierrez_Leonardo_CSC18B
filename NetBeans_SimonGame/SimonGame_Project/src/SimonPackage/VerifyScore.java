@@ -9,6 +9,7 @@ package SimonPackage;
 import java.util.Comparator;
 
 //Class to get the top 10 highest scores
+// COMPERATOR was taken from chapter 17 from the latest text edition (10th)
 public class VerifyScore implements Comparator<TopScores> {
 	
 	// Compares score by score until sorted
